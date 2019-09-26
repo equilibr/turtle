@@ -6,6 +6,7 @@
 #include <QColor>
 #include <QGraphicsScene>
 
+#include "World.h"
 #include "RobotController.h"
 #include "ThreadedBrainController.h"
 
@@ -53,6 +54,7 @@ private:
 
 	RobotController * robotController;
 	ThreadedBrainController brainController;
+	Turtle::World world;
 };
 
 #endif // MAINWINDOW_H

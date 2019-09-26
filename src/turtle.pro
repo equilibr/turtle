@@ -34,6 +34,7 @@ SOURCES += \
 		ui/QtOSGWidget.cpp \
 		ui/Robot.cpp \
 		ui/RobotController.cpp \
+		ui/Scene.cpp \
 		ui/ThreadedBrain.cpp \
 		ui/ThreadedBrainController.cpp \
 		main.cpp \
@@ -48,6 +49,7 @@ HEADERS += \
 	ui/QtOSGWidget.h \
 	ui/Robot.h \
 	ui/RobotController.h \
+	ui/Scene.h \
 	ui/ThreadedBrain.h \
 	ui/ThreadedBrainController.h \
 	main.h \

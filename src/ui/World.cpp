@@ -1,9 +1,9 @@
 #include "World.h"
 
-namespace Turtle
-{
+using namespace Turtle;
 
-World::World()
+World::World() :
+	m_scene(m_floor.root())
 {
 }
 
@@ -12,4 +12,3 @@ bool World::operator()()
 	return true;
 }
 
-}

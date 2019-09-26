@@ -5,6 +5,8 @@
 
 #include <QImage>
 
+#include <osg/Node>
+#include <osg/Group>
 #include <osg/Geode>
 #include <osg/Texture2D>
 
@@ -26,17 +28,16 @@ namespace Turtle
 		using TilePosition3D = Coordinate<TilePosition,3>;
 
 
-		TiledFloor(
-				const Index2D && size = {},
-				const QColor clearColor = Qt::white,
-				const Position2D && tileSize = {1,1});
+		TiledFloor(const Index2D & size = {},
+				const QColor & clearColor = Qt::white,
+				const Position2D & tileSize = {1,1});
 
 		//Set a new image
 		void setImage(const QImage & image);
 
 		//Access functors
 		const QImage & image() const {return m_image;}
-		osg::ref_ptr<osg::Geode> floor() {return m_floor;}
+		osg::ref_ptr<osg::Node> root() {return m_root;}
 
 		//Set the clear color to use
 		void setClearColor(QColor color) {m_clearColor = color;}
@@ -65,6 +66,7 @@ namespace Turtle
 		//The one sided (distance from origin to edge) size of the floor
 		Position2D m_halfPositionSize;
 
+		//The color to use for clear operations
 		QColor m_clearColor;
 
 		//The pixels
@@ -72,9 +74,13 @@ namespace Turtle
 		osg::ref_ptr<osg::Image> m_textureImage;
 		osg::ref_ptr<osg::Texture2D> m_texture;
 
-		//The floor
+		//The textured floor geometry
 		osg::ref_ptr<osg::Geode> m_floor;
 
+		//The floor root
+		osg::ref_ptr<osg::Group> m_root;
+
+		//Base for converting from center-origin to corner-origin
 		TilePosition2D m_Base;
 	};
 

@@ -18,16 +18,20 @@ OsgColor fromQColor(const QColor & color)
 }
 
 
-TiledFloor::TiledFloor(const TiledFloor::Index2D && size, const QColor clearColor, const Position2D && tileSize)
+TiledFloor::TiledFloor(
+		const TiledFloor::Index2D & size,
+		const QColor & clearColor,
+		const Position2D & tileSize)
 {
-	setClearColor(clearColor);
-	reset(size, tileSize);
-
 	m_texture = new osg::Texture2D;
 
 	//Create default members to avoid dereferencing null pointers
 	m_textureImage = new osg::Image;
 	m_floor = new osg::Geode;
+	m_root = new osg::Group;
+
+	setClearColor(clearColor);
+	reset(size, tileSize);
 }
 
 void TiledFloor::setImage(const QImage & image)
@@ -60,6 +64,14 @@ void TiledFloor::reset(const Index2D & size, const Position2D & tileSize)
 	m_textureImage->allocateImage(dimentions.x(),dimentions.y(),1, GL_RGB, GL_UNSIGNED_BYTE);
 
 	clear();
+
+	//Remove the old floor
+	m_root->removeChild(m_floor);
+
+	createQuad();
+
+	//Add the new floor
+	m_root->addChild(m_floor);
 }
 
 void TiledFloor::clear()
