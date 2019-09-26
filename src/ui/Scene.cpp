@@ -81,8 +81,7 @@ osg::ref_ptr<osg::Group> setupScene()
 }
 
 
-Scene::Scene(osg::ref_ptr<osg::Node> floor)
+Scene::Scene()
 {
 	m_root = setupScene();
-	m_root->addChild(floor);
 }

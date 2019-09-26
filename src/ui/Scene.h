@@ -5,12 +5,13 @@
 
 namespace Turtle
 {
-	//Manages the 3D scene
-
+	//Creates and manages the 3D scene
 	class Scene
 	{
 	public:
-		Scene(osg::ref_ptr<osg::Node> floor);
+		Scene();
+
+		void addChild(const osg::ref_ptr<osg::Node> node) { m_root->addChild(node);}
 
 		//Access functors
 		osg::ref_ptr<osg::Node> root() {return m_root;}

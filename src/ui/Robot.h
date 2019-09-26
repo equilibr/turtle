@@ -6,7 +6,8 @@
 #include <osg/Geode>
 #include <osg/Switch>
 
-class Robot : public osg::Group
+//Creates and manages the graphical representation of the turtle
+class Robot
 {
 public:
 	Robot(float radius = 0.5, float height = 0.5);
@@ -17,6 +18,8 @@ public:
 	void setHatColor(osg::Vec4 color) { setColor(hat, color); }
 
 	void setPenState(bool enabled) { penSwitch->setValue(0, enabled); }
+
+	osg::ref_ptr<osg::Group> root() const {return m_root;}
 
 protected:
 	void setColor(osg::ref_ptr<osg::Geometry> node, osg::Vec4 color);
@@ -35,6 +38,9 @@ private:
 
 	osg::ref_ptr<osg::Geometry> pen, bottom, top, hat;
 	osg::ref_ptr<osg::Switch> penSwitch;
+
+	//The root node
+	osg::ref_ptr<osg::Group> m_root;
 };
 
 #endif // ROBOT_H

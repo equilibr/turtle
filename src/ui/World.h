@@ -3,7 +3,12 @@
 
 #include "Types.h"
 #include "TiledFloor.h"
+#include "Actor.h"
+#include "TurtleActor.h"
 #include "Scene.h"
+
+#include <vector>
+#include <array>
 
 namespace Turtle
 {
@@ -15,17 +20,31 @@ namespace Turtle
 	public:
 		World();
 
-		//Execute a simulated world step
+		//Execute the simulated world step(s)
 		//Returns whether something in the world changed
-		bool operator()();
+		bool operator()(int steps = 1);
 
 		//Access functors
-		Scene & scene() {return m_scene;}
 		TiledFloor & floor() {return m_floor;}
+		TurtleActor & mainActor() { return m_mainActor;}
+		Scene & scene() {return m_scene;}
+
+		//Clamp the position to the bounding box
+		Position clamp(const Position & position)
+		{ return position.max(boundingBox[0]).min(boundingBox[1]); }
+
+		//Calculate the final position, inside the bounding box, if moving
+		// in a straight line
+		Position edge(const Position & from, const Position & to);
 
 	private:
 		//The one sided (distance from origin to edge) size of the world
-		Position2D halfSize;
+		Position halfSize;
+
+		//The world bounding box
+		std::array<Position, 2> boundingBox;
+
+
 
 		//Count of simulated steps per simulated second
 		double stepsPerSecond = 25.0;
@@ -33,11 +52,14 @@ namespace Turtle
 		//The floor of the world
 		TiledFloor m_floor;
 
+		//The main actor of the world
+		TurtleActor m_mainActor;
+
 		//The 3D scene
 		Scene m_scene;
 
-
-		//The main turtle robot
+		//The actors
+		std::vector<std::reference_wrapper<Actor>> m_actors;
 
 	};
 

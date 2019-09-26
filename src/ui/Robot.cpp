@@ -16,6 +16,8 @@ Robot::Robot(float radius, float height)
 	const float topHeight = height / 2 - height / 4;
 	const float hatHeight = height / 2 - height / 4;
 
+	m_root = new osg::Group;
+
 	//Create the robot parts
 	pen = createCylinder(radius * 0.1f, penHeight);
 	bottom = createCylinder(radius * 0.9f, bottomHeight);
@@ -27,16 +29,16 @@ Robot::Robot(float radius, float height)
 	makeTransparent(penGeode);
 	penSwitch = new osg::Switch;
 	penSwitch->addChild(bindGeode(penGeode, penHeight / 2), false);
-	addChild(penSwitch);
+	m_root->addChild(penSwitch);
 
 	//Make the bottom transparent
 	osg::ref_ptr<osg::Geode> bottomGeode = bindDrawable(bottom);
 	makeTransparent(bottomGeode);
-	addChild(bindGeode(bottomGeode, bottomHeight / 2));
+	m_root->addChild(bindGeode(bottomGeode, bottomHeight / 2));
 
-	addChild(bindGeode(bindDrawable(top), bottomHeight - topHeight / 2  - topHeight / 16));
+	m_root->addChild(bindGeode(bindDrawable(top), bottomHeight - topHeight / 2  - topHeight / 16));
 
-	addChild(bindGeode(bindDrawable(hat), bottomHeight));
+	m_root->addChild(bindGeode(bindDrawable(hat), bottomHeight));
 
 
 	//Set initial values

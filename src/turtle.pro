@@ -26,6 +26,7 @@ LIBS += -losgFX
 DESTDIR = ../bin
 
 SOURCES += \
+		ui/Actor.cpp \
 		ui/Floor.cpp \
 		ui/ImageDisplay.cpp \
 		ui/MainEntryPoint.cpp \
@@ -39,9 +40,11 @@ SOURCES += \
 		ui/ThreadedBrainController.cpp \
 		main.cpp \
 		ui/TiledFloor.cpp \
+		ui/TurtleActor.cpp \
 		ui/World.cpp
 
 HEADERS += \
+	ui/Actor.h \
 	ui/Floor.h \
 	ui/ImageDisplay.h \
 	ui/MainWindow.h \
@@ -54,6 +57,7 @@ HEADERS += \
 	ui/ThreadedBrainController.h \
 	main.h \
 	ui/TiledFloor.h \
+	ui/TurtleActor.h \
 	ui/Types.h \
 	ui/World.h
 

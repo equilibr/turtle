@@ -4,18 +4,6 @@
 
 using namespace Turtle;
 
-using OsgColor = osg::Vec4;
-
-OsgColor fromQColor(const QColor & color)
-{
-	return OsgColor
-	{
-		static_cast<OsgColor::value_type>(color.redF()),
-		static_cast<OsgColor::value_type>(color.greenF()),
-		static_cast<OsgColor::value_type>(color.blueF()),
-		static_cast<OsgColor::value_type>(color.alphaF())
-	};
-}
 
 
 TiledFloor::TiledFloor(
