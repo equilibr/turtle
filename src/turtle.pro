@@ -36,7 +36,9 @@ SOURCES += \
 		ui/RobotController.cpp \
 		ui/ThreadedBrain.cpp \
 		ui/ThreadedBrainController.cpp \
-		main.cpp
+		main.cpp \
+		ui/TiledFloor.cpp \
+		ui/World.cpp
 
 HEADERS += \
 	ui/Floor.h \
@@ -48,7 +50,10 @@ HEADERS += \
 	ui/RobotController.h \
 	ui/ThreadedBrain.h \
 	ui/ThreadedBrainController.h \
-	main.h
+	main.h \
+	ui/TiledFloor.h \
+	ui/Types.h \
+	ui/World.h
 
 FORMS += \
 	ui/MainWindow.ui
