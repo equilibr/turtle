@@ -4,7 +4,8 @@ TurtleActorController::TurtleActorController(
 		TurtleActor &actor,
 		QObject *parent) :
 	QObject(parent),
-	actor{actor}
+	actor{actor},
+	pause{false}
 {
 	//Add our callback dispatcher to the actors' callbacks list
 	actor.callbacks().push_back([this](TurtleActor::CallbackType type){callback(type);} );

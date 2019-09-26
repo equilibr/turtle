@@ -6,23 +6,40 @@
 #include <QWaitCondition>
 #include <QMutex>
 
-
-#include "RobotController.h"
+#include "TurtleActor.h"
 #include "ThreadedBrain.h"
 
+//Interface between the ThreadedBrain and the rest of the system
+//This class allows to implement blocking calls from within the brain
+// while not blocking anyone else.
 class ThreadedBrainController : public QObject
 {
 	Q_OBJECT
 public:
 	explicit ThreadedBrainController(
-			RobotController * robot,
+			Turtle::TurtleActor & actor,
 			QObject *parent = nullptr);
 
 	~ThreadedBrainController();
 
+	//This should be called from the thread context that holds this object
+	//It will unlock the managed thread that is waiting inside wait()
+	void unlock();
+
+	//This should be called from the brainThread context
+	//It will wait until unlock() is called from the managing thread
+	void wait();
+
+	//This should be called from the brainThread context
+	//It will process all pending events in the brainThread context
+	void process();
+
+public slots:
+
 signals:
 	void run();
 	void stop();
+
 
 	//From the brain
 	void started();
@@ -39,11 +56,9 @@ signals:
 	void getString(QString input, QString title, QString label);
 
 private slots:
-	void ideling();
+
 
 private:
-	void wait();
-
 	QThread brainThread;
 	ThreadedBrain * brain;
 

@@ -11,6 +11,8 @@ class ThreadedBrain : public QObject
 	Q_OBJECT
 
 public:
+	explicit ThreadedBrain(QObject * parent = nullptr) : QObject(parent) {}
+
 	operator bool() const { return active; }
 
 	void setPenDown(bool down) { emit signalSetPenDown(down); }

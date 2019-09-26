@@ -3,12 +3,14 @@
 #include <QAbstractEventDispatcher>
 
 ThreadedBrainController::ThreadedBrainController(
-		RobotController *robot,
+		Turtle::TurtleActor &actor,
 		QObject *parent) :
-	QObject(parent)
+	QObject{parent},
+	brain{new ThreadedBrain(this)}
 {
-	ThreadedBrain *brain = new ThreadedBrain;
 	brain->moveToThread(&brainThread);
+
+//	QMetaObject::invokeMethod()
 
 	//The following code is executed in the brain thread context
 	//----------------------------------------------------------
@@ -99,26 +101,26 @@ ThreadedBrainController::ThreadedBrainController(
 	//----------------------------------------------------
 
 	//Connect our signals to the robot
-	connect(this, &ThreadedBrainController::setPenDown, robot, &RobotController::setPenDown);
-	connect(this, &ThreadedBrainController::setPenColor, robot, &RobotController::setPenColor);
-	connect(this, &ThreadedBrainController::move, robot, &RobotController::move);
-	connect(this, &ThreadedBrainController::rotate, robot, &RobotController::rotate);
-	connect(this, &ThreadedBrainController::log, robot, &RobotController::log);
+	connect(this, &ThreadedBrainController::setPenDown, actor, &RobotController::setPenDown);
+	connect(this, &ThreadedBrainController::setPenColor, actor, &RobotController::setPenColor);
+	connect(this, &ThreadedBrainController::move, actor, &RobotController::move);
+	connect(this, &ThreadedBrainController::rotate, actor, &RobotController::rotate);
+	connect(this, &ThreadedBrainController::log, actor, &RobotController::log);
 
-	connect(this, &ThreadedBrainController::getInteger, robot, &RobotController::getInteger);
-	connect(this, &ThreadedBrainController::getDouble, robot, &RobotController::getDouble);
-	connect(this, &ThreadedBrainController::getString, robot, &RobotController::getString);
+	connect(this, &ThreadedBrainController::getInteger, actor, &RobotController::getInteger);
+	connect(this, &ThreadedBrainController::getDouble, actor, &RobotController::getDouble);
+	connect(this, &ThreadedBrainController::getString, actor, &RobotController::getString);
 
 	connect(this, &ThreadedBrainController::run, brain, &ThreadedBrain::run, Qt::QueuedConnection);
 	connect(this, &ThreadedBrainController::stop, brain, &ThreadedBrain::stop, Qt::DirectConnection);
 
 	//Connect the robot input signal to the brain
-	connect(robot, &RobotController::setInputInteger, brain, &ThreadedBrain::setInputInteger, Qt::DirectConnection);
-	connect(robot, &RobotController::setInputDouble, brain, &ThreadedBrain::setInputDouble, Qt::DirectConnection);
-	connect(robot, &RobotController::setInputString, brain, &ThreadedBrain::setInputString, Qt::DirectConnection);
+	connect(actor, &RobotController::setInputInteger, brain, &ThreadedBrain::setInputInteger, Qt::DirectConnection);
+	connect(actor, &RobotController::setInputDouble, brain, &ThreadedBrain::setInputDouble, Qt::DirectConnection);
+	connect(actor, &RobotController::setInputString, brain, &ThreadedBrain::setInputString, Qt::DirectConnection);
 
 	//Connect the robot ideling to release our blocked brain
-	connect(robot, &RobotController::ideling, this, &ThreadedBrainController::ideling, Qt::DirectConnection);
+	connect(actor, &RobotController::ideling, this, &ThreadedBrainController::ideling, Qt::DirectConnection);
 
 
 	connect(&brainThread, &QThread::finished, brain, &QObject::deleteLater);
@@ -131,7 +133,7 @@ ThreadedBrainController::~ThreadedBrainController()
 	brainThread.wait();
 }
 
-void ThreadedBrainController::ideling()
+void ThreadedBrainController::unlock()
 {
 	mutex.lock();
 	operating.wakeOne();
@@ -140,7 +142,14 @@ void ThreadedBrainController::ideling()
 
 void ThreadedBrainController::wait()
 {
+	process();
 	mutex.lock();
 	operating.wait(&mutex);
 	mutex.unlock();
+	process();
+}
+
+void ThreadedBrainController::process()
+{
+	brainThread.eventDispatcher()->processEvents(QEventLoop::AllEvents);
 }
