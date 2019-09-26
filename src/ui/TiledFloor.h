@@ -17,11 +17,6 @@ namespace Turtle
 	class TiledFloor
 	{
 	public:
-		//A position in tile space with a corner as a reference
-		using IndexPoint = size_t;
-		using Index2D = Coordinate<IndexPoint,2>;
-		using Index3D = Coordinate<IndexPoint,3>;
-
 		//A position in tile space
 		using TilePosition = int;
 		using TilePosition2D = Coordinate<TilePosition,2>;
@@ -31,6 +26,8 @@ namespace Turtle
 		TiledFloor(const Index2D & size = {},
 				const QColor & clearColor = Qt::white,
 				const Position2D & tileSize = {1,1});
+
+		Position2D halfSize() const { return m_halfPositionSize; }
 
 		//Set a new image
 		void setImage(const QImage & image);
@@ -43,7 +40,7 @@ namespace Turtle
 		void setClearColor(QColor color) {m_clearColor = color;}
 
 		//(re)create a floor
-		void reset(const Index2D & size, const Position2D & tileSize);
+		void reset(const Index2D & size, const Position2D & tileSize = {1,1});
 
 		//Clear the floor to its initial state
 		void clear();

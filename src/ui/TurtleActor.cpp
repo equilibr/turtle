@@ -1,4 +1,6 @@
 #include "TurtleActor.h"
+#include "World.h"
+#include "TiledFloor.h"
 
 #include <cmath>
 
@@ -6,9 +8,9 @@ using namespace Turtle;
 
 const double TurtleActor::pi = 	acos(-1);
 
-TurtleActor::TurtleActor(TiledFloor &floor) :
+TurtleActor::TurtleActor(World &world) :
 	Actor("Turtle"),
-	m_floor(floor)
+	m_world(world)
 {
 	m_root = new osg::MatrixTransform;
 	m_root->addChild(m_robot.root());
@@ -25,10 +27,11 @@ bool TurtleActor::operator()(int steps)
 	m_internalState.colorCycle = fmod(m_internalState.colorCycle + steps * 1e-1 / m_internalState.cycleSpeed, 1);
 	m_robot.setHatColor({0,1-alpha,alpha,1});
 
-	if (m_internalState.idle)
+	if (!m_internalState.pending || !m_internalState.active)
 		return false;
 
-	m_internalState.idle = true;
+	//Assume all pending actions will finish in this iteration
+	m_internalState.pending = true;
 	stepPosition(steps);
 	stepAngle(steps);
 	stepPen();
@@ -42,7 +45,11 @@ bool TurtleActor::operator()(int steps)
 				osg::Matrix::translate(static_cast<osg::Vec3>(m_state.current.position))
 			);
 
-	callbackCurrent(m_internalState.idle);
+	callback(CallbackType::Current);
+
+	//Deactivate if a pause is requested
+	m_internalState.active = !m_internalState.pause;
+	callback(m_internalState.active ? CallbackType::Active : CallbackType::Paused);
 
 	return true;
 }
@@ -58,12 +65,63 @@ void TurtleActor::reset()
 	m_internalState.colorCycle = 25.0;
 
 	m_internalState.colorCycle = 0;
-	m_internalState.active = true;
-	m_internalState.idle = true;
+	m_internalState.penDirty = true;
 
-	callbackTarget(true);
-	callbackCurrent(true);
-	callbackPen(true);
+	m_internalState.pending = false;
+	m_internalState.active = true;
+	m_internalState.pause = false;
+
+	callback(CallbackType::Reset);
+}
+
+void TurtleActor::setTarget(const Location &target)
+{
+	const Location final
+	{
+		m_world.edge(m_state.current.position, target.position),
+		normalizeAngle(qMin(0.5, qMax(-0.5, target.angle)))
+	};
+
+	if (m_state.target == final)
+		return;
+
+	m_internalState.pending = true;
+	m_state.target = final;
+	callback(CallbackType::Target);
+}
+
+void TurtleActor::move(const Position2D::value_type distance)
+{
+	m_state.relative.distance = distance;
+
+	Position2D delta
+	{
+		distance * cos(2*pi*m_state.current.angle),
+		distance * sin(2*pi*m_state.current.angle)
+	};
+
+	Location target {m_state.current.position + delta, m_state.current.angle};
+	callback(CallbackType::Move);
+	setTarget(target);
+}
+
+void TurtleActor::rotate(const double angle)
+{
+	m_state.relative.angle = angle;
+
+	Location target {m_state.current.position, m_state.current.angle + angle};
+	callback(CallbackType::Rotate);
+	setTarget(target);
+}
+
+void TurtleActor::setPen(const Pen &pen)
+{
+	if (m_state.pen == pen)
+		return;
+
+	m_internalState.pending = true;
+	m_state.pen = pen;
+	m_internalState.penDirty = true;
 }
 
 double TurtleActor::normalizeAngle(double angle)
@@ -85,7 +143,7 @@ void TurtleActor::stepPosition(int steps)
 		osg::Vec3 unit = delta;
 		unit.normalize();
 		m_state.current.position += Position2D{unit} * m_internalState.linearSpeed * steps;
-		m_internalState.idle = false;
+		m_internalState.pending = true;
 	}
 }
 
@@ -108,28 +166,36 @@ void TurtleActor::stepAngle(int steps)
 					m_state.current.angle +
 					rDistance  / fabs(rDistance)
 					* m_internalState.rotationSpeed * steps);
-		m_internalState.idle = false;
+		m_internalState.pending = true;
 	}
 }
 
 void TurtleActor::stepPen()
 {
-	if (m_internalState.dirty)
+	if (m_internalState.penDirty)
 	{
 		m_robot.setTopColor(fromQColor(m_state.pen.color));
 		m_robot.setPenColor(fromQColor(m_state.pen.color));
 		m_robot.setPenState(m_state.pen.down);
 	}
 
-	if (m_state.pen.down && (m_internalState.dirty || (m_state.current.position != m_internalState.lastPosition)))
+	if (m_state.pen.down && (m_internalState.penDirty || (m_state.current.position != m_internalState.lastPosition)))
 	{
 		m_internalState.lastPosition = m_state.current.position;
-		m_floor.setColor(m_state.current.position, m_state.pen.color);
+		m_world.floor().setColor(m_state.current.position, m_state.pen.color);
+		m_internalState.penDirty = true;
 	}
 
-	if (m_internalState.dirty)
+	if (m_internalState.penDirty)
 	{
-		m_internalState.dirty = false;
-		callbackPen(true);
+		m_internalState.penDirty = false;
+		callback(CallbackType::Pen);
 	}
+}
+
+void TurtleActor::callback(CallbackType type)
+{
+	for (auto & callback : m_callbacks)
+		if (callback)
+			callback(type);
 }

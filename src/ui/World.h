@@ -20,6 +20,9 @@ namespace Turtle
 	public:
 		World();
 
+		void resize(const Index2D & size, const Position2D & tileSize = {1,1});
+		void reset();
+
 		//Execute the simulated world step(s)
 		//Returns whether something in the world changed
 		bool operator()(int steps = 1);
@@ -38,13 +41,8 @@ namespace Turtle
 		Position edge(const Position & from, const Position & to);
 
 	private:
-		//The one sided (distance from origin to edge) size of the world
-		Position halfSize;
-
 		//The world bounding box
 		std::array<Position, 2> boundingBox;
-
-
 
 		//Count of simulated steps per simulated second
 		double stepsPerSecond = 25.0;

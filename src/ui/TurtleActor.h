@@ -1,17 +1,18 @@
 #ifndef TURTLEACTOR_H
 #define TURTLEACTOR_H
 
+#include <functional>
+#include <vector>
 #include <QColor>
 #include <osg/MatrixTransform>
-#include <functional>
 
 #include "Types.h"
 #include "Actor.h"
 #include "Robot.h"
-#include "TiledFloor.h"
 
 namespace Turtle
 {
+	class World;
 
 	class TurtleActor : public Actor
 	{
@@ -44,64 +45,71 @@ namespace Turtle
 			bool operator!=(const Location & rhs) const { return !(position == rhs.position) || !qFuzzyCompare(angle, rhs.angle);}
 		};
 
+		struct Relative
+		{
+			Position2D::value_type distance;
+			double angle;
+		};
+
 		struct State
 		{
 			Pen pen;
 			Location current;
 			Location target;
 
-			//Set when current equals target
-			bool idle;
+			Relative relative;
 		};
 
-		using Callback = std::function<void(bool)>;
+		enum class CallbackType
+		{
+			Reset,
+			Active,
+			Paused,
+			Current,
+			Target,
+			Pen,
+			Move,
+			Rotate
+		};
 
-		TurtleActor(TiledFloor & floor);
+		using Callback = std::function<void(CallbackType)>;
+		using Callbacks = std::vector<Callback>;
+
+		TurtleActor(World & world);
 
 		bool operator()(int steps = 1) override;
 
 
 		//Access functors
 		const osg::ref_ptr<osg::Node> root() const { return m_root; }
+		const osg::ref_ptr<osg::Node> robotRoot() const { return m_robot.root(); }
 		const State & state() const { return m_state; }
+		Callbacks & callbacks(void) { return m_callbacks; }
 
-		void setTargetCallback(Callback callback) { m_targetCallback = callback; }
-		void setCurrentCallback(Callback callback) { m_currentCallback = callback; }
-		void setPenCallback(Callback callback) { m_penCallback = callback; }
+		//Enable to stop processing when becoming idle
+		void pause(bool pause) { m_internalState.pause = pause; }
 
+		//Continue running when paused
+		void go() { m_internalState.active = true; }
 
 		//Reset to initial settings
 		void reset();
 
-		void setTarget(const Location & target)
-		{
-			if (m_state.target == target)
-				return;
+		//Directly set the target
+		void setTarget(const Location & target);
 
-			m_state.idle = false;
-			m_state.target = target;
-			callbackTarget(false);
-		}
+		//Move on the current heading(angle)
+		void move(const Position2D::value_type distance);
 
-		void setPen(const Pen & pen)
-		{
-			if (m_state.pen == pen)
-				return;
+		//Rotate by some angle
+		void rotate(const double angle);
 
-			m_state.idle = false;
-			m_state.pen = pen;
-			m_internalState.dirty = true;
-			callbackPen(false);
-		}
-
+		//Set the current pen state
+		void setPen(const Pen & pen);
 
 	protected:
 		static const double pi;
 		static double normalizeAngle(double angle);
-
-		void callbackTarget(bool idle) { if (m_targetCallback) m_targetCallback(idle);}
-		void callbackCurrent(bool idle) { if (m_currentCallback) m_currentCallback(idle);}
-		void callbackPen(bool idle) { if (m_penCallback) m_penCallback(idle);}
 
 		void stepPosition(int steps);
 		void stepAngle(int steps);
@@ -118,21 +126,28 @@ namespace Turtle
 
 			double colorCycle;
 
+			bool penDirty;
+
+			//Actions are pending
+			bool pending;
+
+			//The actor is active
 			bool active;
-			bool idle;
-			bool dirty;
+
+			//A pause was requested
+			bool pause;
 		};
 
-		TiledFloor & m_floor;
+		World & m_world;
 		Robot m_robot;
 		osg::ref_ptr<osg::MatrixTransform> m_root;
 
 		State m_state;
 		InternalState m_internalState;
 
-		Callback m_targetCallback;
-		Callback m_currentCallback;
-		Callback m_penCallback;
+	private:
+		void callback(CallbackType type);
+		Callbacks m_callbacks;
 	};
 
 }

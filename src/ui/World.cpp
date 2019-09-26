@@ -7,13 +7,27 @@
 using namespace Turtle;
 
 World::World() :
-	m_mainActor(m_floor)
+	m_mainActor(*this)
 {
 	m_actors.push_back(m_mainActor);
 
 	//Add all graphical elements to the scene
 	m_scene.addChild(m_floor.root());
 	m_scene.addChild(m_mainActor.root());
+}
+
+void World::resize(const Index2D & size, const Position2D & tileSize)
+{
+	m_floor.reset(size, tileSize);
+
+	boundingBox[0] = -m_floor.halfSize();
+	boundingBox[1] = m_floor.halfSize();
+}
+
+void World::reset()
+{
+	m_floor.clear();
+	m_mainActor.reset();
 }
 
 bool World::operator()(int steps)
@@ -49,7 +63,7 @@ Position World::edge(const Position &from, const Position &to)
 	Position tForward = tLow.max(tHigh);
 
 	//We're interested in the smallest "t" that intersect with one of the axes
-	Position::value_type t = tForward.max();
+	Position::value_type t = tForward.min();
 
 	//Return the points at the found t
 	return from + direction * t;

@@ -5,9 +5,8 @@
 using namespace Turtle;
 
 
-
 TiledFloor::TiledFloor(
-		const TiledFloor::Index2D & size,
+		const Index2D & size,
 		const QColor & clearColor,
 		const Position2D & tileSize)
 {

@@ -232,6 +232,11 @@ namespace Turtle
 	using Position2D = Coordinate<PositionPoint,2>;
 	using Position3D = Coordinate<PositionPoint,3>;
 	using Position = Position2D;
+
+	//A position in tile space with a corner as a reference
+	using IndexPoint = size_t;
+	using Index2D = Coordinate<IndexPoint,2>;
+	using Index3D = Coordinate<IndexPoint,3>;
 }
 
 #endif // TYPES_H

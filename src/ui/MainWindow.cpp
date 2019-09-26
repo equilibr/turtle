@@ -279,7 +279,7 @@ void MainWindow::setupFollowView(osg::ref_ptr<osg::Node> node)
 {
 	osg::ref_ptr<osgGA::NodeTrackerManipulator> manipulator = new osgGA::NodeTrackerManipulator;
 	manipulator->setRotationMode(osgGA::NodeTrackerManipulator::ELEVATION_AZIM);
-	manipulator->setTrackNode(robotController->getRobot());
+	manipulator->setTrackNode(world.mainActor().robotRoot());
 
 	ui->followView->getViewer()->setCameraManipulator(manipulator);
 	new QtOSGMouseHandler(ui->followView);
