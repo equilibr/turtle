@@ -10,25 +10,10 @@
 #include <QImageWriter>
 #include <QInputDialog>
 
-#include <osg/ShapeDrawable>
-#include <osg/StateSet>
-#include <osg/Material>
-#include <osg/Geometry>
-#include <osg/Geode>
-#include <osg/MatrixTransform>
-#include <osg/PolygonMode>
-#include <osg/Fog>
-#include <osgFX/Cartoon>
-#include <osg/LightSource>
-#include <osg/Light>
-
-#include <osgDB/ReadFile>
-#include <osgUtil/SmoothingVisitor>
 #include <osgGA/NodeTrackerManipulator>
 
 #include "QtOSGWidget.h"
 #include "QtOSGMouseHandler.h"
-#include "RobotController.h"
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),

@@ -27,14 +27,12 @@ DESTDIR = ../bin
 
 SOURCES += \
 		ui/Actor.cpp \
-		ui/Floor.cpp \
 		ui/ImageDisplay.cpp \
 		ui/MainEntryPoint.cpp \
 		ui/MainWindow.cpp \
 		ui/QtOSGMouseHandler.cpp \
 		ui/QtOSGWidget.cpp \
 		ui/Robot.cpp \
-		ui/RobotController.cpp \
 		ui/Scene.cpp \
 		ui/ThreadedBrain.cpp \
 		ui/ThreadedBrainController.cpp \
@@ -46,13 +44,11 @@ SOURCES += \
 
 HEADERS += \
 	ui/Actor.h \
-	ui/Floor.h \
 	ui/ImageDisplay.h \
 	ui/MainWindow.h \
 	ui/QtOSGMouseHandler.h \
 	ui/QtOSGWidget.h \
 	ui/Robot.h \
-	ui/RobotController.h \
 	ui/Scene.h \
 	ui/ThreadedBrain.h \
 	ui/ThreadedBrainController.h \
