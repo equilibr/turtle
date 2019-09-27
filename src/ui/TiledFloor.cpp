@@ -4,7 +4,6 @@
 
 using namespace Turtle;
 
-
 TiledFloor::TiledFloor(
 		const Index2D & size,
 		const QColor & clearColor,
@@ -49,6 +48,7 @@ void TiledFloor::reset(const Index2D & size, const Position2D & tileSize)
 
 	//Create the texture image
 	m_textureImage->allocateImage(dimentions.x(),dimentions.y(),1, GL_RGB, GL_UNSIGNED_BYTE);
+	m_texture->setImage(m_textureImage);
 
 	clear();
 
@@ -117,6 +117,8 @@ void TiledFloor::setColor(Index2D position, QColor color)
 				fromQColor(color),
 				static_cast<unsigned int>(position.x()),
 				static_cast<unsigned int>(position.y()));
+
+	m_textureImage->dirty();
 }
 
 void TiledFloor::createQuad()
@@ -141,13 +143,14 @@ void TiledFloor::createQuad()
 	vertices->push_back( toVec3(m_halfPositionSize * Position2D{-1,1}) );
 
 	osg::ref_ptr<osg::Vec3Array> normals = new osg::Vec3Array;
-	normals->push_back( osg::Vec3(0.0f,-1.0f, 0.0f) );
+	normals->push_back( osg::Vec3(0.0f,0.0f, 1.0f) );
 
 	osg::ref_ptr<osg::Vec2Array> texcoords = new osg::Vec2Array;
 	texcoords->push_back( osg::Vec2(0.0f, 0.0f) );
-	texcoords->push_back( osg::Vec2(0.0f, 1.0f) );
-	texcoords->push_back( osg::Vec2(1.0f, 1.0f) );
 	texcoords->push_back( osg::Vec2(1.0f, 0.0f) );
+	texcoords->push_back( osg::Vec2(1.0f, 1.0f) );
+	texcoords->push_back( osg::Vec2(0.0f, 1.0f) );
+
 
 	osg::ref_ptr<osg::Geometry> quad = new osg::Geometry;
 	quad->setVertexArray( vertices );

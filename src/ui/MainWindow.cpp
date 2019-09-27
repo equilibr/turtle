@@ -24,6 +24,13 @@ MainWindow::MainWindow(QWidget *parent) :
 	brain{new ThreadedBrainController(actor, this)}
 {
 	ui->setupUi(this);
+	QTimer::singleShot(0,[this]()
+	{
+		QList<int> sizes = ui->splitterMiddle->sizes();
+		int heightQuanta = (sizes[0] + sizes[1]) / 3;
+		ui->splitterMiddle->setSizes({2*heightQuanta,1*heightQuanta});
+	});
+
 	ui->actionLog_robot->setChecked(true);
 
 	//UI to robot signals

@@ -13,7 +13,7 @@ ThreadedBrainController::ThreadedBrainController(
 
 	connect(brain, &ThreadedBrain::started, this, &ThreadedBrainController::started);
 	connect(brain, &ThreadedBrain::stopped, this, &ThreadedBrainController::stopped);
-	connect(brain, &ThreadedBrain::log, this, &ThreadedBrainController::log);
+	connect(brain, &ThreadedBrain::signalLog, this, &ThreadedBrainController::log);
 
 	connect(brain, &ThreadedBrain::signalTargetPosition, controller, &TurtleActorController::setTargetPosition);
 	connect(brain, &ThreadedBrain::signalTargetAngle, controller, &TurtleActorController::setTargetAngle);
