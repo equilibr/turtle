@@ -37,6 +37,7 @@ SOURCES += \
 		ui/ThreadedBrain.cpp \
 		ui/ThreadedBrainController.cpp \
 		main.cpp \
+		ui/TileSensor.cpp \
 		ui/TiledFloor.cpp \
 		ui/TurtleActor.cpp \
 		ui/TurtleActorController.cpp \
@@ -53,6 +54,7 @@ HEADERS += \
 	ui/ThreadedBrain.h \
 	ui/ThreadedBrainController.h \
 	main.h \
+	ui/TileSensor.h \
 	ui/TiledFloor.h \
 	ui/TurtleActor.h \
 	ui/TurtleActorController.h \

@@ -2,6 +2,7 @@
 #define TILEDFLOOR_H
 
 #include "Types.h"
+#include "TileSensor.h"
 
 #include <QImage>
 
@@ -43,6 +44,8 @@ namespace Turtle
 		//Set a pixel color at a given position
 		void setColor(Position2D position, QColor color) {setColor(toIndex(position),color);}
 		void setColor(TilePosition2D position, QColor color) {setColor(toIndex(position),color);}
+
+		TileSensor getTiles(const TilePosition2D position, size_t size) const;
 
 		TilePosition2D toTileIndex(Position2D position) const;
 	private:

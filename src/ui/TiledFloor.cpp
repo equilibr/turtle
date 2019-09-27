@@ -74,6 +74,29 @@ void TiledFloor::clear()
 	m_textureImage->dirty();
 }
 
+TileSensor TiledFloor::getTiles(const TilePosition2D position, size_t size) const
+{
+	//Adjust the position to be inside our bounds
+	const TilePosition2D::value_type margin = static_cast<TilePosition2D::value_type>(size);
+	TilePosition2D target = position.min(m_halfIndexSize - margin).max(-m_halfIndexSize + margin);
+
+	auto pixel = [this, target] (auto x, auto y)
+	{
+		//Note that the Y axis is inverted
+		return m_image.pixelColor(
+					static_cast<int>(x) + target.x(),
+					m_image.height() -1 - (static_cast<int>(y) + target.y()));
+	};
+
+	TileSensor::Data data;
+	//Stride 1 is along the first axis
+	for (size_t y = 0; y < size; ++y)
+		for (size_t x = 0; x < size; ++x)
+			data.push_back(pixel(x,y));
+
+	return TileSensor(data, margin);
+}
+
 TilePosition2D TiledFloor::toTileIndex(Position2D position) const
 {
 	using T = Position2D::value_type;

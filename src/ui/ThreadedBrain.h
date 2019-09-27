@@ -47,10 +47,12 @@ public:
 	void setPenDown(bool down);
 
 	//Move on the current heading(angle)
-	void move(double distance);
+	void move(double distance = 1.0);
 
 	//Rotate by some angle
-	void rotate(double angle);
+	void rotate(double angle = 0.5);
+	void turnLeft() {rotate(0.25);}
+	void turnRight() {rotate(-0.25);}
 
 
 signals:

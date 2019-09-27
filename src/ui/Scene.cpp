@@ -74,12 +74,11 @@ osg::ref_ptr<osg::Group> setupScene()
 	root->addChild(createLightSource(0,{0,0,1000},{1,1,1,0}));
 	root->addChild(createLightSource(1,{-20,-20,100},{1,1,1,0}));
 
-	setupFog(root);
+//	setupFog(root);
 	setupMaterial(root);
 
 	return root;
 }
-
 
 Scene::Scene()
 {
