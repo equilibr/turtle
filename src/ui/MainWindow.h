@@ -51,8 +51,7 @@ private slots:
 	void on_actionReset_triggered();
 	void on_actionLinear_speed_triggered();
 	void on_actionRotation_speed_triggered();
-
-
+	void on_actionClear_field_triggered();
 
 private:
 	bool logrobot();

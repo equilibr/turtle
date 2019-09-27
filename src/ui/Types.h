@@ -16,6 +16,13 @@ namespace Turtle
 {
 	using OsgColor = osg::Vec4;
 
+	//Helper template to count number of elements in osg vectors
+	template <typename V> struct CountVector  {static constexpr int Count() {return V::Count;}};
+	template <> struct CountVector<osg::Vec2> { static constexpr int Count() {return 2;}};
+	template <> struct CountVector<osg::Vec3> { static constexpr int Count() {return 3;}};
+	template <> struct CountVector<osg::Vec4> { static constexpr int Count() {return 4;}};
+
+	template <typename T = void>
 	OsgColor fromQColor(const QColor & color)
 	{
 		return OsgColor
@@ -33,17 +40,17 @@ namespace Turtle
 	{
 		using Type = Coordinate<T,N>;
 		using value_type = T;
-		static constexpr size_t Count = N;
+		static constexpr int Count = N;
 
 		using V = std::array<T, N>;
 
 		Coordinate(V v = {}) : m_v(v) {}
 
-		template <typename R> Coordinate(const Coordinate<R,N> & r)
-		{std::generate(m_v.begin(), m_v.end(),[&r, i = 0]() mutable {return r.v()[i++];});}
-
 		//Construction from osg vectors
 		template <typename V> explicit Coordinate(const V & v) { *this = v; }
+
+		//Construction from Coordinate
+		template <typename R> Coordinate(const Coordinate<R,N> & r) { *this = r; }
 
 
 		//Shorthand versions for simplified construction
@@ -62,9 +69,8 @@ namespace Turtle
 
 
 		//Reduction utility functions
-		T max() const { return std::max(m_v.cbegin(), m_v.cend()); }
-		T min() const { return std::min(m_v.cbegin(), m_v.cend()); }
-
+		T max() const { return *std::max_element(m_v.cbegin(), m_v.cend()); }
+		T min() const { return *std::min_element(m_v.cbegin(), m_v.cend()); }
 
 
 		//Access functors
@@ -81,26 +87,35 @@ namespace Turtle
 		T & z() {return m_v[3];}
 		const T & z() const {return m_v[3];}
 
-		//Conversion to osg vectors
-		template <typename V> explicit operator V() const
+		//Assignment from Coordinate
+		template <typename R> Type & operator=(const Coordinate<R,N> & v)
 		{
-			V v;
+			for (size_t i = 0; i < N; ++i)
+				m_v[i] = v.v()[i];
 
-			for (size_t i = 0; i < std::min(N, V::num_components); ++i)
-				v[i] = m_v[i];
-
-			return v;
+			return *this;
 		}
 
 		//Assignment from osg vectors
 		template <typename V> Type & operator=(const V & v)
 		{
-			for (size_t i = 0; i < std::min(N, V::num_components); ++i)
+			for (size_t i = 0; i < std::min(N, CountVector<V>::Count()); ++i)
 				m_v[i] = v[i];
 
 			return *this;
 		}
 
+
+		//Conversion to osg vectors
+		template <typename V> explicit operator V() const
+		{
+			V v;
+
+			for (size_t i = 0; i < std::min(N, CountVector<V>::Count()); ++i)
+				v[i] = m_v[i];
+
+			return v;
+		}
 
 
 		//Unary operators

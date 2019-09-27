@@ -78,14 +78,14 @@ inline void TurtleActorController::setTargetPosition(Position2D target) const
 	actor.setTarget(location);
 }
 
-void TurtleActorController::setTargetPositionX(Position2D::value_type target) const
+inline void TurtleActorController::setTargetPositionX(Position2D::value_type target) const
 {
 	TurtleActor::Location location = actor.state().target;
 	location.position.x() = target;
 	actor.setTarget(location);
 }
 
-void TurtleActorController::setTargetPositionY(Position2D::value_type target) const
+inline void TurtleActorController::setTargetPositionY(Position2D::value_type target) const
 {
 	TurtleActor::Location location = actor.state().target;
 	location.position.y() = target;

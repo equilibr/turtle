@@ -26,9 +26,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->setupUi(this);
 	ui->actionLog_robot->setChecked(true);
 
-	connect(ui->actionClear_field, &QAction::triggered, &world, &World::reset);
-
-
 	//UI to robot signals
 	//-------------------
 
@@ -339,3 +336,8 @@ bool MainWindow::logrobot()
 	return ui->actionLog_robot->isChecked();
 }
 
+
+void MainWindow::on_actionClear_field_triggered()
+{
+	world.reset();
+}
