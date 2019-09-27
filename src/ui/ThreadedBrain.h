@@ -7,10 +7,9 @@
 #include <QString>
 #include <QColor>
 #include <QVariant>
+#include <QPointer>
 
 #include "Types.h"
-
-class ThreadedBrainController;
 
 //This object always lives in a separate thread
 class ThreadedBrain : public QObject
@@ -18,7 +17,7 @@ class ThreadedBrain : public QObject
 	Q_OBJECT
 
 public:
-	explicit ThreadedBrain(ThreadedBrainController * controller, QObject * parent = nullptr) :
+	explicit ThreadedBrain(QPointer<QObject> controller, QObject * parent = nullptr) :
 		QObject(parent),
 		controller{controller}
 	{}
@@ -78,11 +77,12 @@ private slots:
 
 private:
 	void waitForActive();
+	void stopWaitingForActive();
 	QVariant requestData(QString title, QString label, QVariant input, bool * ok);
 	QVariant requestDataWorker(QString title, QString label, QVariant input, bool * ok);
 
 
-	ThreadedBrainController * controller;
+	QPointer<QObject> controller;
 
 	QEventLoop idleEventLoop;
 

@@ -66,6 +66,7 @@ void drawCircle(ThreadedBrain & brain, double radius)
 	}
 
 	brain.setPenDown(false);
+	moveTo(brain,0,0);
 }
 
 void drawSpiral(ThreadedBrain & brain, double radius, double distance, double twists)
@@ -100,6 +101,7 @@ void drawSpiral(ThreadedBrain & brain, double radius, double distance, double tw
 	}
 
 	brain.setPenDown(false);
+	moveTo(brain,0,0);
 }
 
 
@@ -132,6 +134,7 @@ void drawSextagram(ThreadedBrain & brain, double radius)
 	}
 
 	brain.setPenDown(false);
+	moveTo(brain,0,0);
 }
 
 void drawVectors(ThreadedBrain & brain, Segments lines, Point offset = {})
@@ -164,9 +167,10 @@ void drawI(ThreadedBrain & brain, double height, Point offset = {})
 		{{-height/2,-height},{height/2,-height}},
 	};
 
-	brain.setPenColor(0,0,0);
 	brain.log("Drawing I");
+	brain.setPenColor(0,0,0);
 	drawVectors(brain, segments, offset);
+	moveTo(brain,0,0);
 }
 
 void MainBrain(ThreadedBrain & brain)

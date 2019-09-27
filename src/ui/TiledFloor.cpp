@@ -70,6 +70,8 @@ void TiledFloor::clear()
 	for (int s = 0; s < m_textureImage->s(); ++s)
 		for (int t = 0; t < m_textureImage->t(); ++t)
 			m_textureImage->setColor(color, static_cast<unsigned int>(s), static_cast<unsigned int>(t));
+
+	m_textureImage->dirty();
 }
 
 TilePosition2D TiledFloor::toTileIndex(Position2D position) const
@@ -108,9 +110,10 @@ Index2D TiledFloor::toIndex(TilePosition2D position) const
 
 void TiledFloor::setColor(Index2D position, QColor color)
 {
+	//Note that the Y axis is inverted
 	m_image.setPixelColor(
 				static_cast<int>(position.x()),
-				static_cast<int>(position.y()),
+				m_image.height() -1 - static_cast<int>(position.y()),
 				color);
 
 	m_textureImage->setColor(

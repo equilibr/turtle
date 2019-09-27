@@ -2,7 +2,6 @@
 
 #include <QInputDialog>
 
-#include "ThreadedBrainController.h"
 #include "main.h"
 
 int ThreadedBrain::getInteger(QString title, QString label, int input, bool * ok)
@@ -83,13 +82,13 @@ void ThreadedBrain::start()
 void ThreadedBrain::stop()
 {
 	setActive(false);
-	idleEventLoop.exit();
+	QMetaObject::invokeMethod(this, &ThreadedBrain::stopWaitingForActive, Qt::QueuedConnection);
 }
 
 void ThreadedBrain::newRunState(bool active)
 {
 	if (active)
-		idleEventLoop.quit();
+		QMetaObject::invokeMethod(this, &ThreadedBrain::stopWaitingForActive, Qt::QueuedConnection);
 }
 
 void ThreadedBrain::run()
@@ -105,6 +104,11 @@ void ThreadedBrain::waitForActive()
 {
 	if (*this)
 		idleEventLoop.exec();
+}
+
+void ThreadedBrain::stopWaitingForActive()
+{
+	idleEventLoop.quit();
 }
 
 QVariant ThreadedBrain::requestData(QString title, QString label, QVariant input, bool * ok)

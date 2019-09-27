@@ -90,11 +90,8 @@ void TurtleActor::setTarget(const Location &target)
 	const Location final
 	{
 		m_world.edge(m_state.current.position, target.position),
-		normalizeAngle(qMin(0.5, qMax(-0.5, target.angle)))
+		normalizeAngle(target.angle)
 	};
-
-	if (m_state.target == final)
-		return;
 
 	m_internalState.pending = true;
 	m_state.target = final;
@@ -112,8 +109,8 @@ void TurtleActor::move(const Position2D::value_type distance)
 	};
 
 	Location target {m_state.current.position + delta, m_state.current.angle};
-	callback(CallbackType::Move);
 	setTarget(target);
+	callback(CallbackType::Move);
 }
 
 void TurtleActor::rotate(const double angle)
@@ -121,15 +118,12 @@ void TurtleActor::rotate(const double angle)
 	m_state.relative.angle = angle;
 
 	Location target {m_state.current.position, m_state.current.angle + angle};
-	callback(CallbackType::Rotate);
 	setTarget(target);
+	callback(CallbackType::Rotate);
 }
 
 void TurtleActor::setPen(const Pen &pen)
 {
-	if (m_state.pen == pen)
-		return;
-
 	m_internalState.pending = true;
 	m_state.pen = pen;
 	m_internalState.penDirty |= pen.down;

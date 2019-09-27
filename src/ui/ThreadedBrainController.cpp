@@ -1,7 +1,5 @@
 #include "ThreadedBrainController.h"
 
-#include <QInputDialog>
-
 ThreadedBrainController::ThreadedBrainController(
 		TurtleActorController * controller,
 		QObject *parent) :
@@ -10,6 +8,9 @@ ThreadedBrainController::ThreadedBrainController(
 {
 	brain->moveToThread(&brainThread);
 	connect(&brainThread, &QThread::finished, brain, &QObject::deleteLater);
+
+	qRegisterMetaType<Turtle::Position2D>("Turtle::Position2D");
+	qRegisterMetaType<Turtle::Position2D::value_type>("Turtle::Position2D::value_type");
 
 	connect(brain, &ThreadedBrain::started, this, &ThreadedBrainController::started);
 	connect(brain, &ThreadedBrain::stopped, this, &ThreadedBrainController::stopped);
@@ -21,6 +22,8 @@ ThreadedBrainController::ThreadedBrainController(
 	connect(brain, &ThreadedBrain::signalPenDown, controller, &TurtleActorController::setPenDown);
 	connect(brain, &ThreadedBrain::signalMove, controller, &TurtleActorController::setMove);
 	connect(brain, &ThreadedBrain::signalRotate, controller, &TurtleActorController::setRotate);
+
+	connect(controller, &TurtleActorController::newRunState, brain, &ThreadedBrain::newRunState);
 
 	brainThread.start();
 }

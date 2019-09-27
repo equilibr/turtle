@@ -11,6 +11,69 @@ TurtleActorController::TurtleActorController(
 	actor.callbacks().push_back([this](TurtleActor::CallbackType type){callback(type);} );
 }
 
+void TurtleActorController::setSingleStep(bool enable)
+{
+	pause = enable;
+	actor.pause(pause);
+}
+
+void TurtleActorController::continueSingleStep()
+{
+	actor.unpause();
+}
+
+void TurtleActorController::setTargetPosition(Position2D target) const
+{
+	TurtleActor::Location location = actor.state().target;
+	location.position = target;
+	actor.setTarget(location);
+}
+
+void TurtleActorController::setTargetPositionX(Position2D::value_type target) const
+{
+	TurtleActor::Location location = actor.state().target;
+	location.position.x() = target;
+	actor.setTarget(location);
+}
+
+void TurtleActorController::setTargetPositionY(Position2D::value_type target) const
+{
+	TurtleActor::Location location = actor.state().target;
+	location.position.y() = target;
+	actor.setTarget(location);
+}
+
+void TurtleActorController::setTargetAngle(double target) const
+{
+	TurtleActor::Location location = actor.state().target;
+	location.angle = target;
+	actor.setTarget(location);
+}
+
+void TurtleActorController::setPenColor(QColor color) const
+{
+	TurtleActor::Pen pen = actor.state().pen;
+	pen.color = color;
+	actor.setPen(pen);
+}
+
+void TurtleActorController::setPenDown(bool down) const
+{
+	TurtleActor::Pen pen = actor.state().pen;
+	pen.down = down;
+	actor.setPen(pen);
+}
+
+void TurtleActorController::setMove(Position2D::value_type distance) const
+{
+	actor.move(distance);
+}
+
+void TurtleActorController::setRotate(const double angle) const
+{
+	actor.rotate(angle);
+}
+
 void TurtleActorController::callback(TurtleActor::CallbackType type)
 {
 	switch (type)
