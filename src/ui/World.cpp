@@ -42,22 +42,24 @@ bool World::operator()(int steps)
 	return dirty;
 }
 
-Position World::edge(const Position &from, const Position &to)
+Position World::clamp(const Position & position, const Position & margin)
+{
+	return position.max(boundingBox[0] + margin).min(boundingBox[1] - margin);
+}
+
+Position World::edge(const Position &from, const Position &to, const Position & margin)
 {
 	//If the destination position is completely withing the bounding box
-	if (clamp(to) == to)
+	if (clamp(to, margin) == to)
 		//It needs no modifications
 		return to;
-
-	//Reference taken from here:
-	//https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection
 
 	//Find the direction, for a "t" value of 1.0
 	Position direction = to - from;
 
 	//Find "t" at intersection with the bounds
-	Position tLow = (boundingBox[0] - from) / direction;
-	Position tHigh = (boundingBox[1] - from) / direction;
+	Position tLow = (boundingBox[0] + margin - from) / direction;
+	Position tHigh = (boundingBox[1] - margin - from) / direction;
 
 	//We're interested only in the forward direction
 	Position tForward = tLow.max(tHigh);

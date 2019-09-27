@@ -72,6 +72,8 @@ namespace Turtle
 			Rotate
 		};
 
+		static constexpr double radius = 0.5;
+
 		using Callback = std::function<void(CallbackType)>;
 		using Callbacks = std::vector<Callback>;
 

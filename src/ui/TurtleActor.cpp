@@ -10,9 +10,10 @@ const double TurtleActor::pi = 	acos(-1);
 
 TurtleActor::TurtleActor(World &world) :
 	Actor("Turtle"),
-	m_world(world)
+	m_world{world},
+	m_robot{radius},
+	m_root{new osg::MatrixTransform}
 {
-	m_root = new osg::MatrixTransform;
 	m_root->addChild(m_robot.root());
 
 	reset();
@@ -69,7 +70,7 @@ void TurtleActor::reset()
 
 	m_internalState.lastPosition = m_state.current.position;
 
-	m_internalState.linearSpeed = 0.1;
+	m_internalState.linearSpeed = 1.0;
 	m_internalState.rotationSpeed = 0.1;
 	m_internalState.cycleSpeed = 25.0;
 
@@ -89,7 +90,7 @@ void TurtleActor::setTarget(const Location &target)
 {
 	const Location final
 	{
-		m_world.edge(m_state.current.position, target.position),
+		m_world.edge(m_state.current.position, target.position, {radius,radius}),
 		normalizeAngle(target.angle)
 	};
 

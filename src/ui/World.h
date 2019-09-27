@@ -33,12 +33,11 @@ namespace Turtle
 		Scene & scene() {return m_scene;}
 
 		//Clamp the position to the bounding box
-		Position clamp(const Position & position)
-		{ return position.max(boundingBox[0]).min(boundingBox[1]); }
+		Position clamp(const Position & position, const Position & margin = {});
 
 		//Calculate the final position, inside the bounding box, if moving
 		// in a straight line
-		Position edge(const Position & from, const Position & to);
+		Position edge(const Position & from, const Position & to, const Position & margin = {});
 
 	private:
 		//The world bounding box
