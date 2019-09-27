@@ -2,29 +2,22 @@
 
 #include <QInputDialog>
 
+#include "ThreadedBrainController.h"
 #include "main.h"
 
 int ThreadedBrain::getInteger(QString title, QString label, int input, bool * ok)
 {
-	return QInputDialog::getInt(
-				nullptr,title,label,input,
-				-2147483647,2147483647,1,
-				ok);
+	return requestData(title, label, input, ok).toInt();
 }
 
 double ThreadedBrain::getDouble(QString title, QString label, double input, bool * ok)
 {
-	return QInputDialog::getDouble(
-				nullptr,title,label,input,
-				-2147483647,2147483647,1,
-				ok);
+	return requestData(title, label, input, ok).toDouble();
 }
 
 QString ThreadedBrain::getString(QString title, QString label, QString input, bool * ok)
 {
-	return QInputDialog::getText(
-				nullptr,title,label, QLineEdit::Normal,
-				input,ok);
+	return requestData(title, label, input, ok).toString();
 }
 
 void ThreadedBrain::log(QString text)
@@ -112,4 +105,63 @@ void ThreadedBrain::waitForActive()
 {
 	if (*this)
 		idleEventLoop.exec();
+}
+
+QVariant ThreadedBrain::requestData(QString title, QString label, QVariant input, bool * ok)
+{
+	auto f = [this, title, label, input, ok]() -> QVariant
+	{ return requestDataWorker(title, label, input, ok); };
+
+	QVariant reply;
+	QMetaObject::invokeMethod(
+				controller,
+				f,
+				Qt::BlockingQueuedConnection,
+				&reply);
+
+	return reply;
+}
+
+QVariant ThreadedBrain::requestDataWorker(QString title, QString label, QVariant input, bool * ok)
+{
+	if (ok)
+		*ok = false;
+
+	//Dispatch the correct dialog according to the requested type
+	switch (input.type())
+	{
+		case QVariant::Int:
+			return QInputDialog::getInt(
+						nullptr,
+						title,
+						label,
+						input.toInt(),
+						-2147483647,
+						2147483647,
+						1,
+						ok);
+
+		case QVariant::Double:
+			return QInputDialog::getDouble(
+						nullptr,
+						title,
+						label,
+						input.toDouble(),
+						-2147483647,
+						2147483647,
+						1,
+						ok);
+
+		case QVariant::String:
+			return QInputDialog::getText(
+						nullptr,
+						title,
+						label,
+						QLineEdit::Normal,
+						input.toString(),
+						ok);
+
+		default:
+			return {};
+	}
 }

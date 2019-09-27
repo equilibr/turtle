@@ -1,12 +1,12 @@
 #include "ThreadedBrainController.h"
 
-#include <QAbstractEventDispatcher>
+#include <QInputDialog>
 
 ThreadedBrainController::ThreadedBrainController(
 		TurtleActorController * controller,
 		QObject *parent) :
 	QObject{parent},
-	brain{new ThreadedBrain}
+	brain{new ThreadedBrain{this}}
 {
 	brain->moveToThread(&brainThread);
 	connect(&brainThread, &QThread::finished, brain, &QObject::deleteLater);

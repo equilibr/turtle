@@ -6,6 +6,7 @@
 #include <QThread>
 #include <QWaitCondition>
 #include <QMutex>
+#include <QVariant>
 
 #include "TurtleActorController.h"
 #include "ThreadedBrain.h"
