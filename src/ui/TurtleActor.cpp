@@ -47,11 +47,7 @@ bool TurtleActor::operator()(int steps)
 	//Notification and action
 	//-----------------------
 
-	m_root->setMatrix(
-				osg::Matrix::rotate(2*pi*m_state.current.angle,0,0,1) *
-				osg::Matrix::translate(static_cast<osg::Vec3>(m_state.current.position))
-				);
-
+	updateTransformMatrix();
 	callback(CallbackType::Current);
 
 	//No more pending actions
@@ -75,7 +71,7 @@ void TurtleActor::reset()
 
 	m_internalState.linearSpeed = 0.1;
 	m_internalState.rotationSpeed = 0.1;
-	m_internalState.colorCycle = 25.0;
+	m_internalState.cycleSpeed = 25.0;
 
 	m_internalState.colorCycle = 0;
 	m_internalState.penDirty = true;
@@ -85,6 +81,7 @@ void TurtleActor::reset()
 	m_internalState.pause = false;
 	m_internalState.unpause = false;
 
+	updateTransformMatrix();
 	callback(CallbackType::Reset);
 }
 
@@ -135,7 +132,7 @@ void TurtleActor::setPen(const Pen &pen)
 
 	m_internalState.pending = true;
 	m_state.pen = pen;
-	m_internalState.penDirty = true;
+	m_internalState.penDirty |= pen.down;
 }
 
 double TurtleActor::normalizeAngle(double angle)
@@ -193,10 +190,12 @@ void TurtleActor::stepPen()
 		m_robot.setPenState(m_state.pen.down);
 	}
 
-	if (m_state.pen.down && (m_internalState.penDirty || (m_state.current.position != m_internalState.lastPosition)))
+	TilePosition2D currentTile = m_world.floor().toTileIndex(m_state.current.position);
+
+	if (m_state.pen.down && (m_internalState.penDirty || (currentTile != m_internalState.lastPosition)))
 	{
-		m_internalState.lastPosition = m_state.current.position;
-		m_world.floor().setColor(m_state.current.position, m_state.pen.color);
+		m_internalState.lastPosition = currentTile;
+		m_world.floor().setColor(currentTile, m_state.pen.color);
 		m_internalState.penDirty = true;
 	}
 
@@ -205,6 +204,15 @@ void TurtleActor::stepPen()
 		m_internalState.penDirty = false;
 		callback(CallbackType::Pen);
 	}
+}
+
+void TurtleActor::updateTransformMatrix()
+{
+	m_root->setMatrix(
+				osg::Matrix::rotate(2*pi*m_state.current.angle,0,0,1) *
+				osg::Matrix::translate(static_cast<osg::Vec3>(m_state.current.position))
+				);
+
 }
 
 void TurtleActor::callback(CallbackType type)

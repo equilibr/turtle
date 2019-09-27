@@ -116,10 +116,11 @@ namespace Turtle
 		void stepPosition(int steps);
 		void stepAngle(int steps);
 		void stepPen();
+		void updateTransformMatrix();
 
 		struct InternalState
 		{
-			Position2D lastPosition;
+			TilePosition2D lastPosition;
 
 			//Speed, in units/step
 			double linearSpeed;

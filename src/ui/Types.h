@@ -169,7 +169,7 @@ namespace Turtle
 		//Comparison operators with Coordinate of the same size (but possible different type)
 
 		template <typename R> bool operator==(const Coordinate<R,N> & r) const { return equal(r, std::equal_to<T>()); }
-		template <typename R> bool operator!=(const Coordinate<R,N> & r) const { return equal(r, std::not_equal_to<T>()); }
+		template <typename R> bool operator!=(const Coordinate<R,N> & r) const { return !(*this == r); }
 		template <typename R> bool operator<(const Coordinate<R,N> & r) const { return equal(r, std::less<T>()); }
 		template <typename R> bool operator<=(const Coordinate<R,N> & r) const { return equal(r, std::less_equal<T>()); }
 		template <typename R> bool operator>(const Coordinate<R,N> & r) const { return equal(r, std::greater<T>()); }
@@ -247,6 +247,11 @@ namespace Turtle
 	using Position2D = Coordinate<PositionPoint,2>;
 	using Position3D = Coordinate<PositionPoint,3>;
 	using Position = Position2D;
+
+	//A position in tile space
+	using TilePosition = int;
+	using TilePosition2D = Coordinate<TilePosition,2>;
+	using TilePosition3D = Coordinate<TilePosition,3>;
 
 	//A position in tile space with a corner as a reference
 	using IndexPoint = size_t;

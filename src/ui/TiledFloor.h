@@ -17,11 +17,6 @@ namespace Turtle
 	class TiledFloor
 	{
 	public:
-		//A position in tile space
-		using TilePosition = int;
-		using TilePosition2D = Coordinate<TilePosition,2>;
-		using TilePosition3D = Coordinate<TilePosition,3>;
-
 
 		TiledFloor(const Index2D & size = {},
 				const QColor & clearColor = Qt::white,
@@ -47,10 +42,13 @@ namespace Turtle
 
 		//Set a pixel color at a given position
 		void setColor(Position2D position, QColor color) {setColor(toIndex(position),color);}
+		void setColor(TilePosition2D position, QColor color) {setColor(toIndex(position),color);}
 
+		TilePosition2D toTileIndex(Position2D position) const;
 	private:
-		void setColor(Index2D position, QColor color);
 		Index2D toIndex(Position2D position) const;
+		Index2D toIndex(TilePosition2D position) const;
+		void setColor(Index2D position, QColor color);
 		void createQuad();
 
 
@@ -58,7 +56,7 @@ namespace Turtle
 		Position2D m_tileSize;
 
 		//The one sided (distance from origin to edge) size of the floor
-		Index2D m_halfIndexSize;
+		TilePosition2D m_halfIndexSize;
 
 		//The one sided (distance from origin to edge) size of the floor
 		Position2D m_halfPositionSize;

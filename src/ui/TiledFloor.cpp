@@ -72,20 +72,7 @@ void TiledFloor::clear()
 			m_textureImage->setColor(color, static_cast<unsigned int>(s), static_cast<unsigned int>(t));
 }
 
-void TiledFloor::setColor(Index2D position, QColor color)
-{
-	m_image.setPixelColor(
-				static_cast<int>(position.x()),
-				static_cast<int>(position.y()),
-				color);
-
-	m_textureImage->setColor(
-				fromQColor(color),
-				static_cast<unsigned int>(position.x()),
-				static_cast<unsigned int>(position.y()));
-}
-
-Index2D TiledFloor::toIndex(Position2D position) const
+TilePosition2D TiledFloor::toTileIndex(Position2D position) const
 {
 	using T = Position2D::value_type;
 	auto toTile = [](T coord, T size) -> TilePosition2D::value_type
@@ -98,13 +85,38 @@ Index2D TiledFloor::toIndex(Position2D position) const
 		return static_cast<TilePosition2D::value_type>(unwrapped);
 	};
 
-	TilePosition2D tile
+	return TilePosition2D
 	{
 		toTile(position.x(), m_tileSize.x()),
 		toTile(position.y(), m_tileSize.y())
 	};
+}
 
-	return tile - m_Base;
+
+Index2D TiledFloor::toIndex(Position2D position) const
+{
+	return toIndex(toTileIndex(position));
+}
+
+Index2D TiledFloor::toIndex(TilePosition2D position) const
+{
+	//Make sure the position is not out of bouns
+	TilePosition2D bounded = position.min(m_halfIndexSize).max(-m_halfIndexSize);
+
+	return bounded - m_Base;
+}
+
+void TiledFloor::setColor(Index2D position, QColor color)
+{
+	m_image.setPixelColor(
+				static_cast<int>(position.x()),
+				static_cast<int>(position.y()),
+				color);
+
+	m_textureImage->setColor(
+				fromQColor(color),
+				static_cast<unsigned int>(position.x()),
+				static_cast<unsigned int>(position.y()));
 }
 
 void TiledFloor::createQuad()
