@@ -27,11 +27,18 @@ bool TurtleActor::operator()(int steps)
 	m_internalState.colorCycle = fmod(m_internalState.colorCycle + steps * 1e-1 / m_internalState.cycleSpeed, 1);
 	m_robot.setHatColor({0,1-alpha,alpha,1});
 
+	if (!m_internalState.active && m_internalState.unpause)
+	{
+		m_internalState.unpause = false;
+		m_internalState.active = true;
+		callback(CallbackType::Active);
+	}
+
 	if (!m_internalState.pending || !m_internalState.active)
 		return false;
 
 	//Assume all pending actions will finish in this iteration
-	m_internalState.pending = true;
+	m_internalState.pending = false;
 	stepPosition(steps);
 	stepAngle(steps);
 	stepPen();
@@ -43,13 +50,19 @@ bool TurtleActor::operator()(int steps)
 	m_root->setMatrix(
 				osg::Matrix::rotate(2*pi*m_state.current.angle,0,0,1) *
 				osg::Matrix::translate(static_cast<osg::Vec3>(m_state.current.position))
-			);
+				);
 
 	callback(CallbackType::Current);
 
-	//Deactivate if a pause is requested
-	m_internalState.active = !m_internalState.pause;
-	callback(m_internalState.active ? CallbackType::Active : CallbackType::Paused);
+	//No more pending actions
+	if (!m_internalState.pending)
+	{
+		//Deactivate if a pause is requested
+		m_internalState.active = !m_internalState.pause || m_internalState.unpause;
+		m_internalState.unpause = false;
+
+		callback(m_internalState.active ? CallbackType::Active : CallbackType::Paused);
+	}
 
 	return true;
 }
@@ -70,6 +83,7 @@ void TurtleActor::reset()
 	m_internalState.pending = false;
 	m_internalState.active = true;
 	m_internalState.pause = false;
+	m_internalState.unpause = false;
 
 	callback(CallbackType::Reset);
 }

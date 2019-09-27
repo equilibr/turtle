@@ -34,41 +34,44 @@ MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow),
 	timer(new QTimer(this)),
-	robotController(new RobotController(frameRate, this)),
-	brainController(robotController, this)
+	world{},
+	actor{new TurtleActorController(world.mainActor(), this)},
+	brain{new ThreadedBrainController(actor, this)}
 {
 	ui->setupUi(this);
 	ui->actionLog_robot->setChecked(true);
-	connect(ui->actionClear_field, &QAction::triggered, robotController, &RobotController::clear);
+
+	connect(ui->actionClear_field, &QAction::triggered, &world, &World::reset);
 
 
 	//UI to robot signals
 	//-------------------
 
-	connect(ui->penDown, &QCheckBox::clicked, robotController, &RobotController::setPenDown);
+	connect(ui->penDown, &QCheckBox::clicked, actor, &TurtleActorController::setPenDown);
 
 	connect(ui->setX, &QDoubleSpinBox::editingFinished, [this]()
-	{ if (ui->setX->hasFocus()) robotController->setX(ui->setX->value()); });
+	{ if (ui->setX->hasFocus()) actor->setTargetPositionX(ui->setX->value()); });
 
 	connect(ui->setY, &QDoubleSpinBox::editingFinished, [this]()
-	{ if (ui->setY->hasFocus()) robotController->setY(ui->setY->value()); });
+	{ if (ui->setY->hasFocus()) actor->setTargetPositionY(ui->setY->value()); });
 
 	connect(ui->setAngle, &QDoubleSpinBox::editingFinished, [this]()
-	{ if (ui->setAngle->hasFocus()) robotController->setAngle(ui->setAngle->value()); });
+	{ if (ui->setAngle->hasFocus()) actor->setTargetAngle(ui->setAngle->value()); });
 
 
 	connect(ui->relativeDistance, &QDoubleSpinBox::editingFinished, [this]()
-	{ if (ui->relativeDistance->hasFocus()) robotController->move(ui->relativeDistance->value()); });
+	{ if (ui->relativeDistance->hasFocus()) actor->setMove(ui->relativeDistance->value()); });
 
 	connect(ui->relativeAngle, &QDoubleSpinBox::editingFinished, [this]()
-	{ if (ui->relativeAngle->hasFocus()) robotController->rotate(ui->relativeAngle->value()); });
+	{ if (ui->relativeAngle->hasFocus()) actor->setRotate(ui->relativeAngle->value()); });
 
 	auto setColor = [this]()
 	{
-		robotController->setPenColor(
-					ui->red->value(),
-					ui->green->value(),
-					ui->blue->value());
+		actor->setPenColor(
+					QColor::fromRgbF(
+						ui->red->value(),
+						ui->green->value(),
+						ui->blue->value()));
 	};
 
 	connect(ui->red, &QDoubleSpinBox::editingFinished, setColor);
@@ -92,100 +95,16 @@ MainWindow::MainWindow(QWidget *parent) :
 		setColor();
 	});
 
-	connect(ui->singleStep, &QCheckBox::toggled, robotController, &RobotController::setSingleStep);
-	connect(ui->Continue, &QPushButton::clicked, robotController, &RobotController::continueStep);
+	connect(ui->singleStep, &QCheckBox::toggled, actor, &TurtleActorController::setSingleStep);
+	connect(ui->Continue, &QPushButton::clicked, actor, &TurtleActorController::continueSingleStep);
 
 
 
 	//Robot to UI signals
 	//-------------------
-
-	connect(robotController, &RobotController::penStateChanged, [this](bool down)
-	{
-		ui->penDown->setChecked(down);
-
-		if (!logrobot())
-			return;
-
-		if (down)
-			ui->log->append("<i>Pen down</i>");
-		else
-			ui->log->append("<i>Pen up</i>");
-	});
-
-	connect(
-				robotController,
-				&RobotController::penColorChanged,
-				[this](double r, double g, double b)
-	{
-		ui->red->setValue(r);
-		ui->green->setValue(g);
-		ui->blue->setValue(b);
-
-		if (!logrobot())
-			return;
-
-		ui->log->append(QString("<i>Set color: %1 %2 %3</i>").arg(r).arg(g).arg(b));
-	});
-
-	connect(robotController, &RobotController::relativeMoveChanged, [this](double distance)
-	{
-		ui->relativeDistance->setValue(distance);
-
-		if (!logrobot())
-			return;
-
-		ui->log->append(QString("<i>Set distance: %1</i>").arg(distance));
-	});
-
-	connect(robotController, &RobotController::relativeRotateChanged, [this](double angle)
-	{
-		ui->relativeAngle->setValue(angle);
-
-		if (!logrobot())
-			return;
-
-		ui->log->append(QString("<i>Set rotation: %1</i>").arg(angle));
-	});
-
-	connect(robotController, &RobotController::logAdded, ui->log, &QTextBrowser::append);
-
-
-	connect(
-				robotController,
-				&RobotController::currentStateChanged,
-				[this](double x, double y, double angle)
-	{
-		ui->currentX->setValue(x);
-		ui->currentY->setValue(y);
-		ui->currentAngle->setValue(angle);
-	});
-
-	connect(
-				robotController,
-				&RobotController::targetStateChanged,
-				[this](double x, double y, double angle)
-	{
-		ui->setX->setValue(x);
-		ui->setY->setValue(y);
-		ui->setAngle->setValue(angle);
-	});
-
-	connect(robotController, &RobotController::fieldSizeChanged, [this](size_t _size)
-	{
-		auto size = static_cast<int>(_size);
-		ui->setX->setRange(-size, size);
-		ui->setY->setRange(-size, size);
-		ui->currentX->setRange(-size, size);
-		ui->currentY->setRange(-size, size);
-
-		ui->relativeDistance->setRange(-2*size*sqrt(2), 2*size*sqrt(2));
-
-		ui->image->setImage(robotController->getImage());
-	});
-
-	connect(robotController, &RobotController::imageChanged, [this](){ui->image->update();});
-	connect(robotController, &RobotController::stoppedOnStep, ui->Continue, &QPushButton::setEnabled);
+	connect(actor, &TurtleActorController::newState, this, &MainWindow::newState);
+	connect(actor, &TurtleActorController::newRunState,
+			[this](bool active) {ui->Continue->setEnabled(!active);});
 
 
 	//UI to brain signals
@@ -193,65 +112,19 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(ui->start, &QPushButton::clicked, this, &MainWindow::run);
 	connect(ui->stop, &QPushButton::clicked, this, &MainWindow::stop);
 
-	connect(this, &MainWindow::run, &brainController, &ThreadedBrainController::run);
-	connect(this, &MainWindow::stop, &brainController, &ThreadedBrainController::stop);
-	connect(this, &MainWindow::stop, robotController, &RobotController::stop);
+	connect(this, &MainWindow::run, brain, &ThreadedBrainController::start);
+	connect(this, &MainWindow::stop, brain, &ThreadedBrainController::stop);
 
 	//Brain to UI signals
 	//-------------------
-	connect(&brainController, &ThreadedBrainController::started, this, &MainWindow::started);
-	connect(&brainController, &ThreadedBrainController::stopped, this, &MainWindow::stopped);
-
-
-	//Data input to brain
-	//-------------------
-
-	connect(robotController, &RobotController::getInteger, [this](int input, QString title, QString label)
-	{
-		int reply;
-		bool ok;
-
-		reply = QInputDialog::getInt(
-					this,title,label,input,
-					-2147483647,2147483647,1,
-					&ok);
-
-		robotController->newInputInteger(reply, ok);
-	});
-
-	connect(robotController, &RobotController::getDouble, [this](double input, QString title, QString label)
-	{
-		double reply;
-		bool ok;
-
-		reply = QInputDialog::getDouble(
-					this,title,label,input,
-					-2147483647,2147483647,1,
-					&ok);
-
-		robotController->newInputDouble(reply, ok);
-	});
-
-	connect(robotController, &RobotController::getString, [this](QString input, QString title, QString label)
-	{
-		QString reply;
-		bool ok;
-
-		reply = QInputDialog::getText(
-					this,title,label, QLineEdit::Normal,
-					input,&ok);
-
-		robotController->newInputString(reply, ok);
-	});
-
+	connect(brain, &ThreadedBrainController::started, this, &MainWindow::started);
+	connect(brain, &ThreadedBrainController::stopped, this, &MainWindow::stopped);
+	connect(brain, &ThreadedBrainController::log, ui->log, &QTextBrowser::append);
 
 	//Initialization
 	//--------------
+	resize();
 
-	robotController->resetField(fieldSize);
-	robotController->emitStatus();
-
-//	osg::ref_ptr<osg::Node> root = setupScene(robotController->getNode());
 	setupViews(world.scene().root());
 
 	connect(timer, &QTimer::timeout, this, &MainWindow::frame);
@@ -265,7 +138,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::frame()
 {
-	robotController->step();
+	world();
+
 	ui->followView->update();
 	ui->image->update();
 }
@@ -297,6 +171,28 @@ void MainWindow::setupFollowView(osg::ref_ptr<osg::Node> node)
 	ui->followView->setSceneData(node);
 }
 
+void MainWindow::resize()
+{
+	world.resize({fieldSize, fieldSize});
+	world.reset();
+	actor->reset();
+
+	auto size = static_cast<int>(fieldSize);
+	ui->setX->setRange(-size, size);
+	ui->setY->setRange(-size, size);
+	ui->currentX->setRange(-size, size);
+	ui->currentY->setRange(-size, size);
+
+	ui->relativeDistance->setRange(-2*size*sqrt(2), 2*size*sqrt(2));
+
+	ui->image->setImage(&world.floor().image());
+}
+
+void MainWindow::reset()
+{
+	world.reset();
+}
+
 void MainWindow::started()
 {
 	ui->log->append(QString("<b>Started</b>"));
@@ -311,6 +207,50 @@ void MainWindow::stopped()
 
 	ui->start->setEnabled(true);
 	ui->stop->setEnabled(false);
+}
+
+void MainWindow::newState(TurtleActor::State state, TurtleActor::CallbackType action)
+{
+	ui->penDown->setChecked(state.pen.down);
+	ui->red->setValue(state.pen.color.redF());
+	ui->green->setValue(state.pen.color.greenF());
+	ui->blue->setValue(state.pen.color.blueF());
+
+	ui->currentX->setValue(state.current.position.x());
+	ui->currentY->setValue(state.current.position.y());
+	ui->currentAngle->setValue(state.current.angle);
+
+	ui->setX->setValue(state.target.position.x());
+	ui->setY->setValue(state.target.position.y());
+	ui->setAngle->setValue(state.target.angle);
+
+	ui->relativeDistance->setValue(state.relative.distance);
+	ui->relativeAngle->setValue(state.relative.angle);
+
+	if (!logrobot())
+		return;
+
+	switch (action)
+	{
+		case TurtleActor::CallbackType::Pen:
+			ui->log->append(
+						QString("<i>Pen %1, Red %2, Green %3, Blue %4</i>")
+						.arg(state.pen.down ? "down" : "up")
+						.arg(state.pen.color.redF())
+						.arg(state.pen.color.greenF())
+						.arg(state.pen.color.blueF()));
+			break;
+
+		case TurtleActor::CallbackType::Move:
+			ui->log->append(QString("<i>Set distance: %1</i>").arg(state.relative.distance));
+			break;
+
+		case TurtleActor::CallbackType::Rotate:
+			ui->log->append(QString("<i>Set rotation: %1</i>").arg(state.relative.angle));
+			break;
+
+		default: ;
+	}
 }
 
 void MainWindow::on_actionSave_as_triggered()
@@ -338,7 +278,7 @@ void MainWindow::on_actionSave_as_triggered()
 	if (file.fileName().isEmpty())
 		return;
 
-	if (!robotController->getImage()->save(file.fileName()))
+	if (!world.floor().image().save(file.fileName()))
 		QMessageBox::critical(this,tr("Error opening file"),tr("The file could not be opened for writing."));
 }
 
@@ -349,8 +289,28 @@ void MainWindow::on_actionClear_log_triggered()
 
 void MainWindow::on_actionExit_triggered()
 {
-	brainController.stop();
+	brain->stop();
 	close();
+}
+
+void MainWindow::on_actionResize_triggered()
+{
+	bool ok;
+	int newSize = static_cast<int>(fieldSize);
+
+	newSize =
+			QInputDialog::getInt(
+					this,
+					"Half size",
+					"Half-size of the field, in tiles",
+					newSize,
+					0, 1000, 1, &ok);
+
+	if (!ok)
+		return;
+
+	fieldSize = static_cast<size_t>(newSize);
+	resize();
 }
 
 void MainWindow::on_actionReset_triggered()
@@ -364,32 +324,28 @@ void MainWindow::on_actionReset_triggered()
 	ui->setY->setValue(0);
 	ui->setAngle->setValue(0);
 
-	robotController->setPenDown(false);
-	robotController->setPenColor(1,1,1);
-	robotController->setX(0);
-	robotController->setY(0);
-	robotController->setAngle(0);
+	reset();
 }
 
 void MainWindow::on_actionLinear_speed_triggered()
 {
-	robotController->setLinearSpeed(
+	actor->setLinearSpeed(
 				QInputDialog::getDouble(
 					this,
 					"Linear speed",
 					"The speed, in units per second",
-					robotController->getLinearSpeed(),
+					actor->linearSpeed(),
 					0, 100, 3));
 }
 
 void MainWindow::on_actionRotation_speed_triggered()
 {
-	robotController->setRotationSpeed(
+	actor->setRotationSpeed(
 				QInputDialog::getDouble(
 					this,
 					"Rotation speed",
 					"The speed, in circles per second",
-					robotController->getRotationSpeed(),
+					actor->rotationSpeed(),
 					0, 100, 3));
 }
 
@@ -397,3 +353,4 @@ bool MainWindow::logrobot()
 {
 	return ui->actionLog_robot->isChecked();
 }
+

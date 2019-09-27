@@ -1,13 +1,14 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QPointer>
 #include <QMainWindow>
 #include <QTimer>
 #include <QColor>
 #include <QGraphicsScene>
 
 #include "World.h"
-#include "RobotController.h"
+#include "TurtleActorController.h"
 #include "ThreadedBrainController.h"
 
 namespace Ui {
@@ -23,7 +24,7 @@ public:
 	~MainWindow() override;
 
 protected:
-	constexpr static size_t fieldSize = 50.0;
+	size_t fieldSize = 50.0;
 	constexpr static double frameRate = 25.0;
 	void frame();
 
@@ -35,16 +36,23 @@ signals:
 	void stop();
 
 protected slots:
+	void resize();
+	void reset();
 	void started();
 	void stopped();
 
 private slots:
+	void newState(TurtleActor::State state, TurtleActor::CallbackType action);
+
 	void on_actionSave_as_triggered();
 	void on_actionClear_log_triggered();
 	void on_actionExit_triggered();
+	void on_actionResize_triggered();
 	void on_actionReset_triggered();
 	void on_actionLinear_speed_triggered();
 	void on_actionRotation_speed_triggered();
+
+
 
 private:
 	bool logrobot();
@@ -52,9 +60,9 @@ private:
 	Ui::MainWindow *ui;
 	QTimer * timer;
 
-	RobotController * robotController;
-	ThreadedBrainController brainController;
 	Turtle::World world;
+	QPointer<TurtleActorController> actor;
+	QPointer<ThreadedBrainController> brain;
 };
 
 #endif // MAINWINDOW_H

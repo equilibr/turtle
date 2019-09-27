@@ -85,12 +85,14 @@ namespace Turtle
 		const osg::ref_ptr<osg::Node> robotRoot() const { return m_robot.root(); }
 		const State & state() const { return m_state; }
 		Callbacks & callbacks(void) { return m_callbacks; }
+		double & linearSpeed(void) { return m_internalState.linearSpeed; }
+		double & rotationSpeed(void) { return m_internalState.rotationSpeed; }
 
 		//Enable to stop processing when becoming idle
 		void pause(bool pause) { m_internalState.pause = pause; }
 
 		//Continue running when paused
-		void go() { m_internalState.active = true; }
+		void unpause() { m_internalState.unpause = true; }
 
 		//Reset to initial settings
 		void reset();
@@ -136,6 +138,9 @@ namespace Turtle
 
 			//A pause was requested
 			bool pause;
+
+			//A pause cancelation was requested
+			bool unpause;
 		};
 
 		World & m_world;

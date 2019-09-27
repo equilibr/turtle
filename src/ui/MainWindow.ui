@@ -384,6 +384,7 @@
     <property name="title">
      <string>Control</string>
     </property>
+    <addaction name="actionResize"/>
     <addaction name="actionClear_field"/>
     <addaction name="actionReset"/>
     <addaction name="actionLinear_speed"/>
@@ -438,6 +439,11 @@
    </property>
    <property name="text">
     <string>Log robot</string>
+   </property>
+  </action>
+  <action name="actionResize">
+   <property name="text">
+    <string>Resize...</string>
    </property>
   </action>
  </widget>

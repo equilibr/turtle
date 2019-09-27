@@ -1,9 +1,13 @@
 #ifndef THREADEDBRAIN_H
 #define THREADEDBRAIN_H
 
+#include <QAtomicInt>
 #include <QObject>
+#include <QEventLoop>
 #include <QString>
 #include <QColor>
+
+#include "Types.h"
 
 //This object always lives in a separate thread
 class ThreadedBrain : public QObject
@@ -13,95 +17,66 @@ class ThreadedBrain : public QObject
 public:
 	explicit ThreadedBrain(QObject * parent = nullptr) : QObject(parent) {}
 
-	operator bool() const { return active; }
+	operator bool() const { return active.load() != 0; }
+	void setActive(bool value) { active.store(value ? 1 : 0);}
 
-	void setPenDown(bool down) { emit signalSetPenDown(down); }
-	void setPenColor(double red, double green, double blue)  { emit signalSetPenColor(red, green, blue); }
-	void setPenColor(double hue, double saturation)
-	{
-		auto color = QColor::fromHsvF(hue, saturation, 1.0);
-		setPenColor(color.redF(), color.greenF(), color.blueF());
-	}
+	int getInteger(QString title = {}, QString label = {}, int input = 0, bool * ok = nullptr);
+	double getDouble(QString title = {}, QString label = {}, double input = 0, bool * ok = nullptr);
+	QString getString(QString title = {}, QString label = {}, QString input = {}, bool * ok = nullptr);
 
-	void move(double distance)  { emit signalMove(distance); }
-	void rotate(double angle) { emit signalRotate(angle); }
-	void log(QString text) { emit signalLog(text); }
+	//Send a log string to the UI
+	void log(QString text);
 
-	int getInteger(QString title = {}, QString label = {}, int input = 0, bool * ok = nullptr)
-	{
-		inputInteger = input;
-		emit signalGetInteger(input, title, label);
-		if (ok != nullptr)
-			*ok = inputOK;
+	//Directly set the target position
+	void setTargetPosition(Turtle::Position2D target);
 
-		return inputInteger;
-	}
+	//Directly set the target angle
+	void setTargetAngle(double target);
 
-	double getDouble(QString title = {}, QString label = {}, double input = 0, bool * ok = nullptr)
-	{
-		inputDouble = input;
-		emit signalGetDouble(input, title, label);
-		if (ok != nullptr)
-			*ok = inputOK;
+	//Set the pen color
+	void setPenColor(QColor color);
+	void setPenColor(double red, double green, double blue);
+	void setPenColor(double hue, double saturation);
 
-		return inputDouble;
-	}
+	//Set the pen state
+	void setPenDown(bool down);
 
-	QString getString(QString title = {}, QString label = {}, QString input = {}, bool * ok = nullptr)
-	{
-		inputString = input;
-		emit signalGetString(input, title, label);
-		if (ok != nullptr)
-			*ok = inputOK;
+	//Move on the current heading(angle)
+	void move(double distance);
 
-		return inputString;
-	}
+	//Rotate by some angle
+	void rotate(double angle);
 
 
 signals:
-	void signalSetPenDown(bool down);
-	void signalSetPenColor(double r, double g, double b);
-	void signalMove(double distance);
-	void signalRotate(double angle);
-	void signalLog(QString text);
-
-	void signalGetInteger(int input, QString title, QString label);
-	void signalGetDouble(double input, QString title, QString label);
-	void signalGetString(QString input, QString title, QString label);
-
 	void started();
 	void stopped();
+	void signalLog(QString text);
+
+	void signalTargetPosition(Turtle::Position2D target);
+	void signalTargetAngle(double target);
+	void signalPenColor(QColor color);
+	void signalPenDown(bool down);
+	void signalMove(Turtle::Position2D::value_type distance);
+	void signalRotate(const double angle) const;
+
 
 public slots:
-	void run();
+	void start();
 	void stop();
 
-	void setInputInteger(int input, bool ok)
-	{
-		inputInteger = input;
-		inputOK = ok;
-	}
+	void newRunState(bool active);
 
-	void setInputDouble(double input, bool ok)
-	{
-		inputDouble = input;
-		inputOK = ok;
-	}
-
-	void setInputString(QString input, bool ok)
-	{
-		inputString = input;
-		inputOK = ok;
-	}
-
+private slots:
+	void run();
 
 private:
-	bool active;
+	void waitForActive();
 
-	bool inputOK;
-	int inputInteger;
-	double inputDouble;
-	QString inputString;
+	QEventLoop idleEventLoop;
+
+	//Set to 0 when the execution should stop
+	QAtomicInt active;
 };
 
 #endif // THREADEDBRAIN_H
