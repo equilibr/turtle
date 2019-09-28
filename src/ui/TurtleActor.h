@@ -4,11 +4,13 @@
 #include <functional>
 #include <vector>
 #include <QColor>
+#include <QImage>
 #include <osg/MatrixTransform>
 
 #include "Types.h"
 #include "Actor.h"
 #include "Robot.h"
+#include "TileSensor.h"
 
 namespace Turtle
 {
@@ -22,7 +24,7 @@ namespace Turtle
 			QColor color;
 			bool down;
 
-			Pen() : color{Qt::white}, down{false} {}
+			Pen() : color{Qt::black}, down{false} {}
 			explicit Pen(const QColor & color, const bool down) : color{color}, down{down} {}
 			explicit Pen(const Pen & pen, const QColor & color) : color{color}, down{pen.down} {}
 			explicit Pen(const Pen & pen, bool down) : color{pen.color}, down{down} {}
@@ -73,6 +75,7 @@ namespace Turtle
 		};
 
 		static constexpr double radius = 0.5;
+		static constexpr int tileSensorSize = 1;
 
 		using Callback = std::function<void(CallbackType)>;
 		using Callbacks = std::vector<Callback>;
@@ -83,12 +86,19 @@ namespace Turtle
 
 
 		//Access functors
+		//---------------
+
 		const osg::ref_ptr<osg::Node> root() const { return m_root; }
 		const osg::ref_ptr<osg::Node> robotRoot() const { return m_robot.root(); }
 		const State & state() const { return m_state; }
 		Callbacks & callbacks(void) { return m_callbacks; }
 		double & linearSpeed(void) { return m_internalState.linearSpeed; }
 		double & rotationSpeed(void) { return m_internalState.rotationSpeed; }
+		const QImage & tileSensorImage() const { return m_tileSensor; }
+
+
+		//Control functions
+		//-----------------
 
 		//Enable to stop processing when becoming idle
 		void pause(bool pause) { m_internalState.pause = pause; }
@@ -98,6 +108,10 @@ namespace Turtle
 
 		//Reset to initial settings
 		void reset();
+
+
+		//Turtle functions
+		//----------------
 
 		//Directly set the target
 		void setTarget(const Location & target);
@@ -110,6 +124,13 @@ namespace Turtle
 
 		//Set the current pen state
 		void setPen(const Pen & pen);
+
+
+		//Sensor functions
+		//----------------
+
+		TileSensor tileSensor();
+
 
 	protected:
 		static const double pi;
@@ -152,6 +173,8 @@ namespace Turtle
 
 		State m_state;
 		InternalState m_internalState;
+
+		QImage m_tileSensor;
 
 	private:
 		void callback(CallbackType type);

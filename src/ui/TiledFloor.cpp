@@ -80,18 +80,20 @@ TileSensor TiledFloor::getTiles(const TilePosition2D position, size_t size) cons
 	const TilePosition2D::value_type margin = static_cast<TilePosition2D::value_type>(size);
 	TilePosition2D target = position.min(m_halfIndexSize - margin).max(-m_halfIndexSize + margin);
 
-	auto pixel = [this, target] (auto x, auto y)
+	auto pixel = [this, target] (int x, int y)
 	{
+		const Index2D index = toIndex(target + TilePosition2D{x,y});
+
 		//Note that the Y axis is inverted
 		return m_image.pixelColor(
-					static_cast<int>(x) + target.x(),
-					m_image.height() -1 - (static_cast<int>(y) + target.y()));
+					static_cast<int>(index.x()),
+					m_image.height() -1 - (static_cast<int>(index.y())));
 	};
 
 	TileSensor::Data data;
-	//Stride 1 is along the first axis
-	for (size_t y = 0; y < size; ++y)
-		for (size_t x = 0; x < size; ++x)
+	//Stride 1 is along the X axis
+	for (int y = -margin; y <= margin; ++y)
+		for (int x = -margin; x <= margin; ++x)
 			data.push_back(pixel(x,y));
 
 	return TileSensor(data, margin);

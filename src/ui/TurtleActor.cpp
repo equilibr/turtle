@@ -51,6 +51,9 @@ bool TurtleActor::operator()(int steps)
 	updateTransformMatrix();
 	callback(CallbackType::Current);
 
+	//Call this here for it's side effect of setting the image
+	tileSensor();
+
 	//No more pending actions
 	if (!m_internalState.pending)
 	{
@@ -82,7 +85,11 @@ void TurtleActor::reset()
 	m_internalState.pause = false;
 	m_internalState.unpause = false;
 
+	m_tileSensor = QImage(tileSensorSize*2 + 1, tileSensorSize*2 + 1, QImage::Format_ARGB32);
+
 	updateTransformMatrix();
+	tileSensor();
+
 	callback(CallbackType::Reset);
 }
 
@@ -128,6 +135,67 @@ void TurtleActor::setPen(const Pen &pen)
 	m_internalState.pending = true;
 	m_state.pen = pen;
 	m_internalState.penDirty |= pen.down;
+}
+
+TileSensor TurtleActor::tileSensor()
+{
+	//Get the tile data
+	const auto raw =
+			m_world.floor().getTiles(
+				m_world.floor().toTileIndex(m_state.current.position),
+				tileSensorSize);
+
+	//Axis-centered direction
+	enum class Direction
+	{
+		PositiveX,
+		NegativeX,
+		PositiveY,
+		NegativeY
+	} direction;
+
+	//Find the direction
+	constexpr double quanta = 1.0 / 8;
+
+	if ((m_state.current.angle >= -quanta) && (m_state.current.angle <= quanta))
+		direction = Direction::PositiveX;
+	else if ((m_state.current.angle > quanta) && (m_state.current.angle < 3*quanta))
+		direction = Direction::PositiveY;
+	else if ((m_state.current.angle < -quanta) && (m_state.current.angle > -3*quanta))
+		direction = Direction::NegativeY;
+	else
+		direction = Direction::NegativeX;
+
+	auto get = [&raw, direction] (auto front, auto side)
+	{
+		switch (direction)
+		{
+			case Direction::PositiveX: return raw.get(-side,front);
+			case Direction::NegativeX: return raw.get(side,-front);
+			case Direction::PositiveY: return raw.get(front,side);
+			case Direction::NegativeY: return raw.get(-front,-side);
+		}
+
+		return QColor();
+	};
+
+
+	TileSensor::Data data;
+	for (int front = -tileSensorSize; front <= tileSensorSize; ++front)
+		for (int side = -tileSensorSize; side <= tileSensorSize; ++side)
+		{
+			const QColor color = get(front,side);
+
+			data.push_back(color);
+
+			//Note that the Y axis is inverted
+			m_tileSensor.setPixelColor(
+						tileSensorSize + side,
+						m_tileSensor.height() -1 - (tileSensorSize + front),
+						color);
+		}
+
+	return {data, tileSensorSize};
 }
 
 double TurtleActor::normalizeAngle(double angle)

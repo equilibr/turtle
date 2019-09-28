@@ -29,6 +29,10 @@ MainWindow::MainWindow(QWidget *parent) :
 		QList<int> sizes = ui->splitterMiddle->sizes();
 		int heightQuanta = (sizes[0] + sizes[1]) / 3;
 		ui->splitterMiddle->setSizes({2*heightQuanta,1*heightQuanta});
+
+		sizes = ui->splitterBottom->sizes();
+		heightQuanta = (sizes[0] + sizes[1]) / 3;
+		ui->splitterBottom->setSizes({2*heightQuanta,1*heightQuanta});
 	});
 
 	ui->actionLog_robot->setChecked(true);
@@ -131,6 +135,7 @@ void MainWindow::frame()
 
 	ui->followView->update();
 	ui->image->update();
+	ui->tileSensor->update();
 }
 
 void MainWindow::setupViews(osg::ref_ptr<osg::Node> node)
@@ -175,6 +180,7 @@ void MainWindow::resize()
 	ui->relativeDistance->setRange(-2*size*sqrt(2), 2*size*sqrt(2));
 
 	ui->image->setImage(&world.floor().image());
+	ui->tileSensor->setImage(&world.mainActor().tileSensorImage());
 }
 
 void MainWindow::reset()

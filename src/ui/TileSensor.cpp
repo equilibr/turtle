@@ -3,8 +3,8 @@
 using namespace Turtle;
 
 TileSensor::TileSensor(const TileSensor::Data & data, int size) :
-	length{size},
-	center{(size - 1) / 2},
+	length{size*2 + 1},
+	center{size},
 	data{data}
 {
 }

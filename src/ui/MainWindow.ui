@@ -14,7 +14,7 @@
    <string>Turtle</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout" stretch="10,1">
+   <layout class="QHBoxLayout" name="horizontalLayout" stretch="8,1">
     <item>
      <widget class="QSplitter" name="splitterMiddle">
       <property name="orientation">
@@ -30,13 +30,12 @@
        <widget class="QtOSGWidget" name="followView"/>
        <widget class="ImageDisplay" name="image" native="true"/>
       </widget>
-      <widget class="QTextBrowser" name="log">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+      <widget class="QSplitter" name="splitterBottom">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
        </property>
+       <widget class="QTextBrowser" name="log"/>
+       <widget class="ImageDisplay" name="tileSensor" native="true"/>
       </widget>
      </widget>
     </item>
@@ -189,13 +188,6 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
-          <widget class="QDoubleSpinBox" name="relativeDistance">
-           <property name="decimals">
-            <number>5</number>
-           </property>
-          </widget>
-         </item>
          <item row="1" column="1">
           <widget class="QDoubleSpinBox" name="relativeAngle">
            <property name="decimals">
@@ -216,6 +208,13 @@
           <widget class="QLabel" name="label_6">
            <property name="text">
             <string>Rotate</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QDoubleSpinBox" name="relativeDistance">
+           <property name="decimals">
+            <number>5</number>
            </property>
           </widget>
          </item>
