@@ -35,8 +35,6 @@ MainWindow::MainWindow(QWidget *parent) :
 		ui->splitterBottom->setSizes({2*heightQuanta,1*heightQuanta});
 	});
 
-	ui->actionLog_robot->setChecked(true);
-
 	//UI to robot signals
 	//-------------------
 
@@ -153,7 +151,7 @@ void MainWindow::setupFollowView(osg::ref_ptr<osg::Node> node)
 	new QtOSGMouseHandler(ui->followView);
 
 	ui->followView->getViewer()->getCameraManipulator()->setHomePosition(
-	{-6,0,4},
+	{-20,0,10},
 	{0,0,0},
 	{0,0,1});
 

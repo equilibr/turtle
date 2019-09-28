@@ -127,7 +127,7 @@ Index2D TiledFloor::toIndex(Position2D position) const
 
 Index2D TiledFloor::toIndex(TilePosition2D position) const
 {
-	//Make sure the position is not out of bouns
+	//Make sure the position is not out of bounds
 	TilePosition2D bounded = position.min(m_halfIndexSize).max(-m_halfIndexSize);
 
 	return bounded - m_Base;

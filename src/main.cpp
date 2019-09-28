@@ -39,7 +39,7 @@ void moveTo(ThreadedBrain & brain, double x, double y)
 void drawCircle(ThreadedBrain & brain, double radius)
 {
 	//Calculate approximate step size
-	const double stepSize = 1.0 / 8 / hypot(radius, radius);
+	const double stepSize = 1.0 / (2.0 * pi * radius);
 
 	brain.log(
 				QString("Drawing circle with radius of %1, using %2 steps.")
@@ -72,7 +72,7 @@ void drawCircle(ThreadedBrain & brain, double radius)
 void drawSpiral(ThreadedBrain & brain, double radius, double distance, double twists)
 {
 	//Calculate approximate step size
-	const double stepSize = 1.0 / 8 / hypot(radius, radius);
+	const double stepSize = 1.0 / (2.0 * pi * radius);
 
 	brain.log(
 				QString("Drawing spiral with radius of %1, %3 twists at distance %4, using %2 steps.")
