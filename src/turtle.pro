@@ -26,8 +26,9 @@ LIBS += -losgFX
 DESTDIR = ../bin
 
 SOURCES += \
-		mainDraw.cpp \
-		mainFollow.cpp \
+		algorithms/draw.cpp \
+		algorithms/follow.cpp \
+		algorithms/utility.cpp \
 		ui/Actor.cpp \
 		ui/ImageDisplay.cpp \
 		ui/MainEntryPoint.cpp \
@@ -43,10 +44,10 @@ SOURCES += \
 		ui/TiledFloor.cpp \
 		ui/TurtleActor.cpp \
 		ui/TurtleActorController.cpp \
-		ui/World.cpp \
-		utility.cpp
+		ui/World.cpp
 
 HEADERS += \
+	algorithms/utility.h \
 	ui/Actor.h \
 	ui/ImageDisplay.h \
 	ui/MainWindow.h \
@@ -62,8 +63,7 @@ HEADERS += \
 	ui/TurtleActor.h \
 	ui/TurtleActorController.h \
 	ui/Types.h \
-	ui/World.h \
-	utility.h
+	ui/World.h
 
 FORMS += \
 	ui/MainWindow.ui
