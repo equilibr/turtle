@@ -24,7 +24,7 @@ public:
 		controller{controller}
 	{}
 
-	operator bool() const { return active.load() != 0; }
+	explicit operator bool() const { return active.load() != 0; }
 	void setActive(bool value) { active.store(value ? 1 : 0);}
 
 	int getInteger(QString title = {}, QString label = {}, int input = 0, bool * ok = nullptr);

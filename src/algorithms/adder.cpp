@@ -1,4 +1,21 @@
 #include "utility.h"
+#include "Checker.h"
+
+void AdderAdd(ThreadedBrain & brain, Checker & cResult, Checker & cCarry)
+{
+	//Read the two bits and the carry
+	const int a = isSensorSet(brain, {0,2}) ? 1 : 0;
+	const int b = isSensorSet(brain, {0,1}) ? 1 : 0;
+	const int c = isSensorSet(brain, {0,3}) ? 1 : 0;
+
+	const int r = a + b + c;
+	//Result
+	brain.setDirectionalTile(cResult(r & 1), {0,0});
+	//Carry
+	brain.setDirectionalTile(cCarry(r & 2), {1,3});
+
+	brain.move();
+}
 
 void Adder(ThreadedBrain &brain)
 {
@@ -63,26 +80,16 @@ void Adder(ThreadedBrain &brain)
 	//Clear the first carry input
 	brain.setDirectionalTile(Qt::white, {0, 3});
 
+	Checker cResult(Qt::green);
+	Checker cCarry(Qt::blue);
+
 	//Adder loop
 	//The inputs are read from (0,1), (0,2)
 	//The result is written at (0,0)
 	//The carry is saved at (1,3)
 	brain.log("Calculating");
 	for (int i = 0; (i < bits) && brain; ++i)
-	{
-		//Read the two bits and the carry
-		const int a = isSensorDark(brain, {0,2}) ? 1 : 0;
-		const int b = isSensorDark(brain, {0,1}) ? 1 : 0;
-		const int c = isSensorDark(brain, {0,3}) ? 1 : 0;
-
-		const int r = a + b + c;
-		//Result
-		brain.setDirectionalTile((r & 1) ? Qt::green : QColor{240,255,240}, {0,0});
-		//Carry
-		brain.setDirectionalTile((r & 2) ? Qt::blue : QColor{240,240,255}, {1,3});
-
-		brain.move();
-	}
+		AdderAdd(brain, cResult, cCarry);
 
 	brain.move(-bits);
 

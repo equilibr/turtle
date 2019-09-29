@@ -45,19 +45,19 @@ Direction findDirection(ThreadedBrain &brain)
 {
 	auto sensor = brain.tileSensor();
 
-	if (isSensorDark(brain, 1, 0))
+	if (isSensorSet(brain, 1, 0))
 		return Direction::Forward;
 
-	if (isSensorDark(brain, 0, -1))
+	if (isSensorSet(brain, 0, -1))
 		return Direction::Left;
 
-	if (isSensorDark(brain, 0, 1))
+	if (isSensorSet(brain, 0, 1))
 		return Direction::Right;
 
-	if (isSensorDark(brain, 1, -1))
+	if (isSensorSet(brain, 1, -1))
 		return Direction::LeftDiagonal;
 
-	if (isSensorDark(brain, 1, 1))
+	if (isSensorSet(brain, 1, 1))
 		return Direction::RightDiagonal;
 
 	return Direction::None;

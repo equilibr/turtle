@@ -1,17 +1,23 @@
 #include "Checker.h"
 
-Checker::Checker(
-		ThreadedBrain & brain,
-		QColor on,
-		QColor off,
-		QColor on2,
-		QColor off2) :
-	brain{brain},
-	on{on},
-	off{off},
-	on2{on2},
-	off2{off2}
+Checker::Checker(Colors colors) :
+	colors{colors}
 {
+	reset();
+}
+
+Checker::Checker() : Checker{Qt::black, 0.95, 0.2}
+{
+}
+
+Checker::Checker(QColor on, double offFactor, double onFactor)
+{
+	colors[0][0] = QColor::fromHsvF(0,0,1.0);
+	colors[0][1] = QColor::fromHsvF(0,0,offFactor);
+
+	colors[1][0] = on;
+	colors[1][1] = QColor::fromHsvF(on.hueF(), on.saturationF(), onFactor);
+
 	reset();
 }
 
@@ -65,13 +71,5 @@ QColor Checker::stateColor() const
 	bool value = (state == State::On) || (state == State::OnChecker);
 	bool checker = (state == State::OnChecker) || (state == State::OffChecker);
 
-	return color(value, checker);
-}
-
-QColor Checker::color(bool value, bool checker) const
-{
-	if (!checker)
-		return value ? on : off;
-	else
-		return value ? on2 : off2;
+	return colors[value ? 1 :0][checker ? 1 :0];
 }

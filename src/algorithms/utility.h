@@ -16,25 +16,15 @@ void drawAt(ThreadedBrain & brain, int forward, int side, QColor color);
 //Test sensor color at the given position
 //---------------------------------------
 
-bool isSensorDark(ThreadedBrain & brain, Turtle::TilePosition2D offset);
-bool isSensorDark(ThreadedBrain & brain, int forward, int side);
 
-bool isSensorRed(ThreadedBrain & brain, Turtle::TilePosition2D offset);
-bool isSensorRed(ThreadedBrain & brain, int forward, int side);
+bool isSensorSet(ThreadedBrain & brain, Turtle::TilePosition2D offset);
+bool isSensorSet(ThreadedBrain & brain, int forward, int side);
+bool isSet(QColor color, double threshold = 0.5);
 
-bool isSensorGreen(ThreadedBrain & brain, Turtle::TilePosition2D offset);
-bool isSensorGreen(ThreadedBrain & brain, int forward, int side);
+bool isSensorColor(ThreadedBrain & brain, Turtle::TilePosition2D offset, QColor test);
+bool isSensorColor(ThreadedBrain & brain, int forward, int side, QColor test);
+bool isColor(QColor color, QColor test, double margin = 0.1, double threshold = 0.5);
 
-bool isSensorBlue(ThreadedBrain & brain, Turtle::TilePosition2D offset);
-bool isSensorBlue(ThreadedBrain & brain, int forward, int side);
-
-
-//Test the color at the given position
-//------------------------------------
-bool isDark(QColor color, double threshold = 0.5);
-bool isRed(QColor color, double threshold = 0.5);
-bool isGreen(QColor color, double threshold = 0.5);
-bool isBlue(QColor color, double threshold = 0.5);
 
 /**
    @brief Read a number

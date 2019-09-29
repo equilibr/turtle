@@ -1,6 +1,8 @@
 #include "utility.h"
 #include "Checker.h"
 
+#include <cmath>
+
 constexpr int maximumBits = 32;
 
 void gotoTR(ThreadedBrain &brain)
@@ -38,65 +40,40 @@ void drawAt(ThreadedBrain & brain, int forward, int side, QColor color)
 	goTo(brain, -forward, -side, true);
 }
 
-bool isSensorDark(ThreadedBrain & brain, Turtle::TilePosition2D offset)
+bool isSensorSet(ThreadedBrain & brain, Turtle::TilePosition2D offset)
 {
-	return isDark(brain.tileSensor().get(offset));
+	return isSet(brain.tileSensor().get(offset));
 }
 
-bool isSensorDark(ThreadedBrain & brain, int forward, int side)
+bool isSensorSet(ThreadedBrain & brain, int forward, int side)
 {
-	return isSensorDark(brain, {forward, side});
+	return isSensorSet(brain, {forward, side});
 }
 
-bool isSensorRed(ThreadedBrain & brain, Turtle::TilePosition2D offset)
+bool isSet(QColor color, double threshold)
 {
-	return isRed(brain.tileSensor().get(offset));
+	return !((color.saturationF() < threshold) && (color.valueF() > threshold));
 }
 
-bool isSensorRed(ThreadedBrain & brain, int forward, int side)
+bool isSensorColor(ThreadedBrain & brain, Turtle::TilePosition2D offset, QColor test)
 {
-	return isSensorRed(brain, {forward, side});
+	return isColor(brain.tileSensor().get(offset), test);
 }
 
-bool isSensorGreen(ThreadedBrain & brain, Turtle::TilePosition2D offset)
+bool isSensorColor(ThreadedBrain & brain, int forward, int side, QColor test)
 {
-	return isGreen(brain.tileSensor().get(offset));
+	return isSensorColor(brain, {forward, side}, test);
 }
 
-bool isSensorGreen(ThreadedBrain & brain, int forward, int side)
+bool isColor(QColor color, QColor test, double margin, double threshold)
 {
-	return isSensorGreen(brain, {forward, side});
+	if (!isSet(color, threshold))
+		return false;
+
+	//Test for color similarity
+	return fabs((fmod(color.hueF() - test.hueF() + 1.5, 1.0) - 0.5)) <= margin;
 }
 
-bool isSensorBlue(ThreadedBrain & brain, Turtle::TilePosition2D offset)
-{
-	return isBlue(brain.tileSensor().get(offset));
-}
-
-bool isSensorBlue(ThreadedBrain & brain, int forward, int side)
-{
-	return isSensorBlue(brain, {forward, side});
-}
-
-bool isDark(QColor color, double threshold)
-{
-	return (color.redF() + color.greenF() + color.blueF()) / 3 < threshold;
-}
-
-bool isRed(QColor color, double threshold)
-{
-	return color.redF() > threshold;
-}
-
-bool isGreen(QColor color, double threshold)
-{
-	return color.greenF() > threshold;
-}
-
-bool isBlue(QColor color, double threshold)
-{
-	return color.blueF() > threshold;
-}
 
 int readNumber(
 		ThreadedBrain & brain,
@@ -149,7 +126,7 @@ int readNumber(
 				return 0;
 			}
 
-			if (isSensorGreen(brain, offset))
+			if (isSensorColor(brain, offset, Qt::green))
 				ok = true;
 
 			brain.move();
@@ -167,7 +144,7 @@ int readNumber(
 
 	//Check for the end marker
 	//This handles the 0-bits case
-	if (markers && isSensorRed(brain, offset))
+	if (markers && isSensorColor(brain, offset, Qt::red))
 		done = true;
 
 	while (ok && !done)
@@ -180,14 +157,14 @@ int readNumber(
 		}
 
 		//Read the current bit
-		result |= (isSensorDark(brain, offset) ? 1 : 0) << readBits;
+		result |= (isSensorSet(brain, offset) ? 1 : 0) << readBits;
 		readBits++;
 
 		brain.move();
 		steps++;
 
 		//Check for the end marker
-		if (markers && isSensorRed(brain, offset))
+		if (markers && isSensorColor(brain, offset, Qt::red))
 			done = true;
 
 		//If no end marker was found make sure we do not
@@ -238,7 +215,7 @@ void writeNumber(
 		steps++;
 	}
 
-	Checker checker(brain);
+	Checker checker;
 
 	for (int i = 0; i < bits; ++i)
 	{
