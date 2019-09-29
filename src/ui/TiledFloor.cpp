@@ -29,7 +29,10 @@ void TiledFloor::setImage(const QImage & image)
 		for (int t = 0; t < m_image.height(); ++t)
 		{
 			QColor color = m_image.pixelColor(s,t);
-			m_textureImage->setColor(fromQColor(color), static_cast<unsigned int>(s), static_cast<unsigned int>(t));
+			m_textureImage->setColor(
+						fromQColor(color),
+						static_cast<unsigned>(s),
+						static_cast<unsigned>(m_textureImage->t() - 1 - t));
 		}
 }
 
@@ -143,7 +146,7 @@ void TiledFloor::setColor(Index2D position, QColor color)
 	m_textureImage->setColor(
 				fromQColor(color),
 				static_cast<unsigned int>(position.x()),
-				static_cast<unsigned int>(position.y()));
+				static_cast<unsigned>(position.y()));
 
 	m_textureImage->dirty();
 }
@@ -173,11 +176,10 @@ void TiledFloor::createQuad()
 	normals->push_back( osg::Vec3(0.0f,0.0f, 1.0f) );
 
 	osg::ref_ptr<osg::Vec2Array> texcoords = new osg::Vec2Array;
-	texcoords->push_back( osg::Vec2(0.0f, 1.0f) );
-	texcoords->push_back( osg::Vec2(1.0f, 1.0f) );
-	texcoords->push_back( osg::Vec2(1.0f, 0.0f) );
 	texcoords->push_back( osg::Vec2(0.0f, 0.0f) );
-
+	texcoords->push_back( osg::Vec2(1.0f, 0.0f) );
+	texcoords->push_back( osg::Vec2(1.0f, 1.0f) );
+	texcoords->push_back( osg::Vec2(0.0f, 1.0f) );
 
 	osg::ref_ptr<osg::Geometry> quad = new osg::Geometry;
 	quad->setVertexArray( vertices );
