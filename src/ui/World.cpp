@@ -26,7 +26,6 @@ void World::resize(const Index2D & size, const Position2D & tileSize)
 
 void World::reset()
 {
-	m_floor.clear();
 	m_mainActor.reset();
 }
 
@@ -52,6 +51,7 @@ void World::setImage(const QImage & image)
 
 	resize(halfSize);
 	m_floor.setImage(image.copy({{0,0},size}));
+	m_mainActor.reset();
 }
 
 bool World::operator()(int steps)

@@ -26,6 +26,8 @@ LIBS += -losgFX
 DESTDIR = ../bin
 
 SOURCES += \
+		mainDraw.cpp \
+		mainFollow.cpp \
 		ui/Actor.cpp \
 		ui/ImageDisplay.cpp \
 		ui/MainEntryPoint.cpp \

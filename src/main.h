@@ -5,4 +5,7 @@
 
 void MainBrain(ThreadedBrain &brain);
 
+void MainBrainDraw(ThreadedBrain &brain);
+void MainBrainFollow(ThreadedBrain &brain);
+
 #endif // MAINBRAIN_H

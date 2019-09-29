@@ -74,7 +74,7 @@ void TurtleActor::reset()
 	m_internalState.lastPosition = m_state.current.position;
 
 	m_internalState.linearSpeed = 1.0;
-	m_internalState.rotationSpeed = 0.1;
+	m_internalState.rotationSpeed = 0.05;
 	m_internalState.cycleSpeed = 25.0;
 
 	m_internalState.colorCycle = 0;
