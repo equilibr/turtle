@@ -173,10 +173,10 @@ void TiledFloor::createQuad()
 	normals->push_back( osg::Vec3(0.0f,0.0f, 1.0f) );
 
 	osg::ref_ptr<osg::Vec2Array> texcoords = new osg::Vec2Array;
-	texcoords->push_back( osg::Vec2(0.0f, 0.0f) );
-	texcoords->push_back( osg::Vec2(1.0f, 0.0f) );
-	texcoords->push_back( osg::Vec2(1.0f, 1.0f) );
 	texcoords->push_back( osg::Vec2(0.0f, 1.0f) );
+	texcoords->push_back( osg::Vec2(1.0f, 1.0f) );
+	texcoords->push_back( osg::Vec2(1.0f, 0.0f) );
+	texcoords->push_back( osg::Vec2(0.0f, 0.0f) );
 
 
 	osg::ref_ptr<osg::Geometry> quad = new osg::Geometry;
