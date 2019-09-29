@@ -55,6 +55,8 @@ public:
 	void turnLeft() {rotate(0.25);}
 	void turnRight() {rotate(-0.25);}
 
+	void setDirectionalTile(const QColor color, const Turtle::TilePosition2D offset);
+
 	//Get the tile sensor
 	Turtle::TileSensor tileSensor();
 
@@ -70,6 +72,7 @@ signals:
 	void signalPenDown(bool down);
 	void signalMove(Turtle::Position2D::value_type distance);
 	void signalRotate(const double angle) const;
+	void signalDirectionalTile(const QColor color, const Turtle::TilePosition2D offset);
 
 	void getTileSensor();
 

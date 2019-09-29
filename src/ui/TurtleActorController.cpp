@@ -74,6 +74,11 @@ void TurtleActorController::setRotate(const double angle) const
 	actor.rotate(angle);
 }
 
+void TurtleActorController::setDirectionalTile(const QColor color, const TilePosition2D offset)
+{
+	actor.setDirectionalTile(color, offset);
+}
+
 void TurtleActorController::getTileSensor()
 {
 	emit newTileSensor(actor.tileSensor());

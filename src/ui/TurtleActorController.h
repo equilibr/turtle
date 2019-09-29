@@ -54,6 +54,10 @@ public slots:
 	//Rotate by some angle
 	void setRotate(const double angle) const;
 
+	//Set a tile at a location relative to the current direction
+	//The position "y" axis is "sideways", and the "x" axis is "front"
+	void setDirectionalTile(const QColor color, const TilePosition2D offset);
+
 	//Return the current tile sensor
 	void getTileSensor();
 

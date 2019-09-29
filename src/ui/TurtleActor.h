@@ -23,11 +23,17 @@ namespace Turtle
 		{
 			QColor color;
 			bool down;
+			TilePosition2D offset;
 
-			Pen() : color{Qt::black}, down{false} {}
-			explicit Pen(const QColor & color, const bool down) : color{color}, down{down} {}
-			explicit Pen(const Pen & pen, const QColor & color) : color{color}, down{pen.down} {}
-			explicit Pen(const Pen & pen, bool down) : color{pen.color}, down{down} {}
+			Pen() : color{Qt::black}, down{false}, offset{{}} {}
+			explicit Pen(
+					const QColor & color,
+					const bool down,
+					const TilePosition2D offset) :
+				color{color},
+				down{down},
+				offset{offset}
+			{}
 
 			bool operator==(const Pen & rhs) const { return (down == rhs.down) && (color == rhs.color);}
 			bool operator!=(const Pen & rhs) const { return (down != rhs.down) || (color != rhs.color);}
@@ -56,6 +62,7 @@ namespace Turtle
 		struct State
 		{
 			Pen pen;
+			Pen touchPen;
 			Location current;
 			Location target;
 
@@ -126,6 +133,10 @@ namespace Turtle
 		//Set the current pen state
 		void setPen(const Pen & pen);
 
+		//Set a tile at a location relative to the current direction
+		//The position "y" axis is "sideways", and the "x" axis is "front"
+		void setDirectionalTile(const QColor color, const TilePosition2D offset);
+
 
 	protected:
 		static const double pi;
@@ -139,9 +150,6 @@ namespace Turtle
 
 		struct InternalState
 		{
-			TilePosition2D lastPosition;
-			TileSensor tileSensor;
-
 			//Speed, in units/step
 			double linearSpeed;
 			double rotationSpeed;
@@ -149,6 +157,10 @@ namespace Turtle
 
 			double colorCycle;
 
+			//The last position where the pen drawed
+			TilePosition2D lastPenPosition;
+
+			//The pen is dirty and should be updated
 			bool penDirty;
 
 			//Actions are pending
@@ -162,6 +174,9 @@ namespace Turtle
 
 			//A pause cancelation was requested
 			bool unpause;
+
+
+			TileSensor tileSensor;
 		};
 
 		World & m_world;
@@ -174,6 +189,19 @@ namespace Turtle
 		QImage m_tileSensor;
 
 	private:
+		//Axis-centered direction
+		enum class Direction
+		{
+			PositiveX,
+			NegativeX,
+			PositiveY,
+			NegativeY
+		};
+
+		Direction currentDirection();
+		TilePosition2D positionToLocal(TilePosition2D position, Direction direction);
+		TilePosition2D positionToGlobal(TilePosition2D position, Direction direction);
+
 		void callback(CallbackType type);
 		Callbacks m_callbacks;
 	};

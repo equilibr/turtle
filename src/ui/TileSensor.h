@@ -1,6 +1,8 @@
 #ifndef TILESENSOR_H
 #define TILESENSOR_H
 
+#include "Types.h"
+
 #include <vector>
 
 #include <QMetaType>
@@ -23,6 +25,9 @@ namespace Turtle
 		//Return the color at a given position
 		QColor get(int front, int side) const
 		{ return data[index(front, side)]; }
+
+		QColor get(TilePosition2D position) const
+		{ return get(position.x(), position.y()); }
 
 		//The size of a dimension
 		int size() const {return length;}

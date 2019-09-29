@@ -70,6 +70,12 @@ void ThreadedBrain::rotate(double angle)
 	waitForActive();
 }
 
+void ThreadedBrain::setDirectionalTile(const QColor color, const Turtle::TilePosition2D offset)
+{
+	emit signalDirectionalTile(color, offset);
+	waitForActive();
+}
+
 Turtle::TileSensor ThreadedBrain::tileSensor()
 {
 	emit getTileSensor();
