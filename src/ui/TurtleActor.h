@@ -67,6 +67,7 @@ namespace Turtle
 			Location target;
 
 			Relative relative;
+			TilePosition2D tilePosition;
 		};
 
 		enum class CallbackType
@@ -133,9 +134,10 @@ namespace Turtle
 		//Set the current pen state
 		void setPen(const Pen & pen);
 
-		//Set a tile at a location relative to the current direction
+		//Set/Get a tile at a location relative to the current direction
 		//The position "y" axis is "sideways", and the "x" axis is "front"
-		void setDirectionalTile(const QColor color, const TilePosition2D offset);
+		void setTile(const QColor color, const TilePosition2D offset, bool absolute = false);
+		QColor getTile(const TilePosition2D offset, bool absolute = false);
 
 
 	protected:
@@ -159,6 +161,9 @@ namespace Turtle
 
 			//The last position where the pen drawed
 			TilePosition2D lastPenPosition;
+
+			//The touch pen is in absolute coordinates
+			bool touchAbsolute;
 
 			//The pen is dirty and should be updated
 			bool penDirty;

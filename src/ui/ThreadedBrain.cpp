@@ -36,6 +36,13 @@ void ThreadedBrain::setTargetAngle(double target)
 	waitForActive();
 }
 
+Turtle::TurtleActor::State ThreadedBrain::getCurrentState()
+{
+	emit signalGetCurrentState();
+	waitForActive();
+	return m_state;
+}
+
 void ThreadedBrain::setPenColor(QColor color)
 {
 	emit signalPenColor(color);
@@ -72,13 +79,40 @@ void ThreadedBrain::rotate(double angle)
 
 void ThreadedBrain::setDirectionalTile(const QColor color, const Turtle::TilePosition2D offset)
 {
-	emit signalDirectionalTile(color, offset);
+	setTile(color, offset, false);
+}
+
+QColor ThreadedBrain::getDirectionalTile(const Turtle::TilePosition2D offset)
+{
+	return getTile(offset, false);
+}
+
+void ThreadedBrain::setAbsoluteTile(const QColor color, const Turtle::TilePosition2D offset)
+{
+	setTile(color, offset, true);
+}
+
+QColor ThreadedBrain::getAbsoluteTile(const Turtle::TilePosition2D offset)
+{
+	return getTile(offset, true);
+}
+
+void ThreadedBrain::setTile(const QColor color, const Turtle::TilePosition2D offset, bool absolute)
+{
+	emit signalSetTile(color, offset, absolute);
 	waitForActive();
+}
+
+QColor ThreadedBrain::getTile(const Turtle::TilePosition2D offset, bool absolute)
+{
+	emit signalGetTile(offset, absolute);
+	waitForActive();
+	return m_tile;
 }
 
 Turtle::TileSensor ThreadedBrain::tileSensor()
 {
-	emit getTileSensor();
+	emit signalGetTileSensor();
 	waitForActive();
 	return m_tileSensor;
 }
@@ -100,6 +134,20 @@ void ThreadedBrain::stop()
 
 void ThreadedBrain::newRunState(bool active)
 {
+	if (active)
+		QMetaObject::invokeMethod(this, &ThreadedBrain::stopWaitingForActive, Qt::QueuedConnection);
+}
+
+void ThreadedBrain::newCurrentState(Turtle::TurtleActor::State state)
+{
+	m_state = state;
+	if (active)
+		QMetaObject::invokeMethod(this, &ThreadedBrain::stopWaitingForActive, Qt::QueuedConnection);
+}
+
+void ThreadedBrain::newTile(QColor color)
+{
+	m_tile = color;
 	if (active)
 		QMetaObject::invokeMethod(this, &ThreadedBrain::stopWaitingForActive, Qt::QueuedConnection);
 }

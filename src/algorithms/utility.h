@@ -47,7 +47,6 @@ bool isBlue(QColor color, double threshold = 0.5);
    @param valid True when no error detected
    @return The read number
  */
-
 int readNumber(ThreadedBrain & brain,
 		int bits = 8,
 		bool reset = true,

@@ -151,6 +151,13 @@ void TiledFloor::setColor(Index2D position, QColor color)
 	m_textureImage->dirty();
 }
 
+QColor TiledFloor::getColor(Index2D position)
+{
+	return m_image.pixelColor(
+				static_cast<int>(position.x()),
+				m_image.height() -1 - static_cast<int>(position.y()));
+}
+
 void TiledFloor::createQuad()
 {
 	auto toVec3 = [](Position2D pos) -> osg::Vec3

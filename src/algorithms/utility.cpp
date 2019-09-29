@@ -1,4 +1,5 @@
 #include "utility.h"
+#include "Checker.h"
 
 constexpr int maximumBits = 32;
 
@@ -6,7 +7,7 @@ void gotoTR(ThreadedBrain &brain)
 {
 	brain.setTargetPosition({1000,1000});
 	brain.setTargetAngle(-0.5);
-	goTo(brain, 0,-3);
+	goTo(brain, 3,-3);
 }
 
 void goTo(ThreadedBrain & brain, int forward, int side, bool keepHeading)
@@ -14,17 +15,17 @@ void goTo(ThreadedBrain & brain, int forward, int side, bool keepHeading)
 	brain.move(forward);
 	if (side > 0)
 	{
-		brain.rotate(-0.25);
+		brain.turnRight();
 		brain.move(side);
 		if (keepHeading)
-			brain.rotate(0.25);
+			brain.turnLeft();
 	}
 	else
 	{
-		brain.rotate(0.25);
+		brain.turnLeft();
 		brain.move(-side);
 		if (keepHeading)
-			brain.rotate(-0.25);
+			brain.turnRight();
 	}
 }
 
@@ -228,16 +229,16 @@ void writeNumber(
 	//Number of steps moved
 	int steps = 0;
 
-
-
 	if (markers)
 	{
-		brain.setPenDown(true);
 		brain.setPenColor(Qt::green);
+		brain.setPenDown(true);
 		brain.setPenDown(false);
 		brain.move();
 		steps++;
 	}
+
+	Checker checker(brain);
 
 	for (int i = 0; i < bits; ++i)
 	{
@@ -248,11 +249,8 @@ void writeNumber(
 			return;
 		}
 
+		brain.setPenColor(checker((number & (1 << i))));
 		brain.setPenDown(true);
-		if (number & (1 << i))
-			brain.setPenColor(Qt::black);
-		else
-			brain.setPenColor(Qt::white);
 		brain.setPenDown(false);
 
 		brain.move();
@@ -261,8 +259,8 @@ void writeNumber(
 
 	if (markers)
 	{
-		brain.setPenDown(true);
 		brain.setPenColor(Qt::red);
+		brain.setPenDown(true);
 		brain.setPenDown(false);
 	}
 

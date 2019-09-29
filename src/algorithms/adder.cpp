@@ -7,7 +7,7 @@ void Adder(ThreadedBrain &brain)
 	int first = 0;
 	int second = 0;
 
-	int bits = brain.getInteger("Bits", "Number of bits", 8, &ok);
+	int bits = brain.getInteger("Bits", "Number of bits", 32, &ok);
 	if (!ok)
 		return;
 

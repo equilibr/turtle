@@ -26,6 +26,7 @@ LIBS += -losgFX
 DESTDIR = ../bin
 
 SOURCES += \
+		algorithms/Checker.cpp \
 		algorithms/adder.cpp \
 		algorithms/draw.cpp \
 		algorithms/follow.cpp \
@@ -48,6 +49,7 @@ SOURCES += \
 		ui/World.cpp
 
 HEADERS += \
+	algorithms/Checker.h \
 	algorithms/utility.h \
 	ui/Actor.h \
 	ui/ImageDisplay.h \

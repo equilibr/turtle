@@ -138,15 +138,28 @@ void TurtleActor::setPen(const Pen &pen)
 	m_internalState.penDirty = true;
 }
 
-void TurtleActor::setDirectionalTile(
-		const QColor color,
-		const TilePosition2D offset)
+void TurtleActor::setTile(const QColor color,
+		const TilePosition2D offset, bool absolute)
 {
 	m_state.touchPen.color = color;
 	m_state.touchPen.down = true;
 	m_state.touchPen.offset = offset;
+	m_internalState.touchAbsolute = absolute;
 
 	m_internalState.pending = true;
+}
+
+QColor TurtleActor::getTile(const TilePosition2D offset, bool absolute)
+{
+	TilePosition2D touchTile;
+	if (absolute)
+		touchTile = offset;
+	else
+		touchTile =
+				m_state.tilePosition +
+				positionToGlobal(offset, currentDirection());
+
+	return m_world.floor().getColor(touchTile);
 }
 
 double TurtleActor::normalizeAngle(double angle)
@@ -204,12 +217,10 @@ void TurtleActor::stepPen()
 		m_robot.setPenState(m_state.pen.down);
 	}
 
-	const TilePosition2D currentTile = m_world.floor().toTileIndex(m_state.current.position);
-
-	if (m_state.pen.down && (m_internalState.penDirty || (currentTile != m_internalState.lastPenPosition)))
+	if (m_state.pen.down && (m_internalState.penDirty || (m_state.tilePosition != m_internalState.lastPenPosition)))
 	{
-		m_internalState.lastPenPosition = currentTile;
-		m_world.floor().setColor(currentTile, m_state.pen.color);
+		m_internalState.lastPenPosition = m_state.tilePosition;
+		m_world.floor().setColor(m_state.tilePosition, m_state.pen.color);
 		m_internalState.penDirty = true;
 	}
 
@@ -217,11 +228,15 @@ void TurtleActor::stepPen()
 	{
 		m_state.touchPen.down = false;
 
-		m_world.floor().setColor(
-					currentTile +
-					positionToGlobal(m_state.touchPen.offset, currentDirection()),
-					m_state.touchPen.color);
+		TilePosition2D touchTile;
+		if (m_internalState.touchAbsolute)
+			touchTile = m_state.touchPen.offset;
+		else
+			touchTile =
+					m_state.tilePosition +
+					positionToGlobal(m_state.touchPen.offset, currentDirection());
 
+		m_world.floor().setColor(touchTile, m_state.touchPen.color);
 		m_internalState.penDirty = true;
 	}
 
@@ -234,6 +249,8 @@ void TurtleActor::stepPen()
 
 void TurtleActor::updateTransformMatrix()
 {
+	m_state.tilePosition = m_world.floor().toTileIndex(m_state.current.position);
+
 	m_root->setMatrix(
 				osg::Matrix::rotate(2*pi*m_state.current.angle,0,0,1) *
 				osg::Matrix::translate(static_cast<osg::Vec3>(m_state.current.position))
@@ -243,10 +260,7 @@ void TurtleActor::updateTransformMatrix()
 void TurtleActor::stepTileSensor()
 {
 	//Get the tile data
-	const auto raw =
-			m_world.floor().getTiles(
-				m_world.floor().toTileIndex(m_state.current.position),
-				tileSensorSize);
+	const auto raw = m_world.floor().getTiles(m_state.tilePosition, tileSensorSize);
 
 	//Axis-centered direction
 	const Direction direction = currentDirection();

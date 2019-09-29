@@ -43,6 +43,11 @@ void TurtleActorController::setTargetPositionY(Position2D::value_type target) co
 	actor.setTarget(location);
 }
 
+void TurtleActorController::getCurrentState()
+{
+	emit newCurrentState(actor.state());
+}
+
 void TurtleActorController::setTargetAngle(double target) const
 {
 	TurtleActor::Location location = actor.state().target;
@@ -74,9 +79,14 @@ void TurtleActorController::setRotate(const double angle) const
 	actor.rotate(angle);
 }
 
-void TurtleActorController::setDirectionalTile(const QColor color, const TilePosition2D offset)
+void TurtleActorController::setTile(const QColor color, const TilePosition2D offset, bool absolute)
 {
-	actor.setDirectionalTile(color, offset);
+	actor.setTile(color, offset, absolute);
+}
+
+void TurtleActorController::getTile(const TilePosition2D offset, bool absolute)
+{
+	emit newTile(actor.getTile(offset, absolute));
 }
 
 void TurtleActorController::getTileSensor()

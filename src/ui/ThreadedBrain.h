@@ -11,6 +11,7 @@
 
 #include "Types.h"
 #include "TileSensor.h"
+#include "TurtleActor.h"
 
 //This object always lives in a separate thread
 class ThreadedBrain : public QObject
@@ -39,6 +40,9 @@ public:
 	//Directly set the target angle
 	void setTargetAngle(double target);
 
+	//Get the current state
+	Turtle::TurtleActor::State getCurrentState();
+
 	//Set the pen color
 	void setPenColor(QColor color = Qt::black);
 	void setPenColor(double red, double green, double blue);
@@ -56,6 +60,13 @@ public:
 	void turnRight() {rotate(-0.25);}
 
 	void setDirectionalTile(const QColor color, const Turtle::TilePosition2D offset);
+	QColor getDirectionalTile(const Turtle::TilePosition2D offset);
+
+	void setAbsoluteTile(const QColor color, const Turtle::TilePosition2D offset);
+	QColor getAbsoluteTile(const Turtle::TilePosition2D offset);
+
+	void setTile(const QColor color, const Turtle::TilePosition2D offset, bool absolute = false);
+	QColor getTile(const Turtle::TilePosition2D offset, bool absolute = false);
 
 	//Get the tile sensor
 	Turtle::TileSensor tileSensor();
@@ -66,15 +77,18 @@ signals:
 	void stopped();
 	void signalLog(QString text);
 
+	void signalGetCurrentState();
 	void signalTargetPosition(Turtle::Position2D target);
 	void signalTargetAngle(double target);
 	void signalPenColor(QColor color);
 	void signalPenDown(bool down);
 	void signalMove(Turtle::Position2D::value_type distance);
 	void signalRotate(const double angle) const;
-	void signalDirectionalTile(const QColor color, const Turtle::TilePosition2D offset);
 
-	void getTileSensor();
+	void signalSetTile(const QColor color, const Turtle::TilePosition2D offset, bool absolute = false);
+	void signalGetTile(const Turtle::TilePosition2D offset, bool absolute = false);
+
+	void signalGetTileSensor();
 
 
 public slots:
@@ -82,6 +96,8 @@ public slots:
 	void stop();
 
 	void newRunState(bool active);
+	void newCurrentState(Turtle::TurtleActor::State state);
+	void newTile(QColor color);
 	void newTileSensor(Turtle::TileSensor sensor);
 
 private slots:
@@ -94,7 +110,9 @@ private:
 	QVariant requestDataWorker(QString title, QString label, QVariant input, bool * ok);
 
 	QPointer<QObject> controller;
+	Turtle::TurtleActor::State m_state;
 	Turtle::TileSensor m_tileSensor;
+	QColor m_tile;
 
 	QEventLoop idleEventLoop;
 

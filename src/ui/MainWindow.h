@@ -24,7 +24,7 @@ public:
 	~MainWindow() override;
 
 protected:
-	size_t fieldSize = 50.0;
+	size_t fieldSize = 20.0;
 	constexpr static double frameRate = 25.0;
 	void frame();
 

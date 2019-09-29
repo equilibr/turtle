@@ -26,6 +26,9 @@ public:
 signals:
 	void newState(TurtleActor::State state, TurtleActor::CallbackType action);
 	void newRunState(bool active);
+
+	void newCurrentState(TurtleActor::State state);
+	void newTile(QColor color);
 	void newTileSensor(Turtle::TileSensor sensor);
 
 public slots:
@@ -38,6 +41,8 @@ public slots:
 	void setTargetPosition(Position2D target) const;
 	void setTargetPositionX(Position2D::value_type target) const;
 	void setTargetPositionY(Position2D::value_type target) const;
+	void getCurrentState();
+
 
 	//Directly set the target angle
 	void setTargetAngle(double target) const;
@@ -54,9 +59,10 @@ public slots:
 	//Rotate by some angle
 	void setRotate(const double angle) const;
 
-	//Set a tile at a location relative to the current direction
-	//The position "y" axis is "sideways", and the "x" axis is "front"
-	void setDirectionalTile(const QColor color, const TilePosition2D offset);
+	//Set/Get a tile at a location relative to the current direction
+	//The the non-absoulte position "y" axis is "sideways", and the "x" axis is "front"
+	void setTile(const QColor color, const TilePosition2D offset, bool absolute);
+	void getTile(const TilePosition2D offset, bool absolute);
 
 	//Return the current tile sensor
 	void getTileSensor();
