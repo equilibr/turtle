@@ -75,7 +75,7 @@ namespace Turtle
 		};
 
 		static constexpr double radius = 0.5;
-		static constexpr int tileSensorSize = 1;
+		static constexpr int tileSensorSize = 3;
 
 		using Callback = std::function<void(CallbackType)>;
 		using Callbacks = std::vector<Callback>;

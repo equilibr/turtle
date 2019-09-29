@@ -43,7 +43,8 @@ SOURCES += \
 		ui/TiledFloor.cpp \
 		ui/TurtleActor.cpp \
 		ui/TurtleActorController.cpp \
-		ui/World.cpp
+		ui/World.cpp \
+		utility.cpp
 
 HEADERS += \
 	ui/Actor.h \
@@ -61,7 +62,8 @@ HEADERS += \
 	ui/TurtleActor.h \
 	ui/TurtleActorController.h \
 	ui/Types.h \
-	ui/World.h
+	ui/World.h \
+	utility.h
 
 FORMS += \
 	ui/MainWindow.ui

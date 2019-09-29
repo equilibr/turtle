@@ -1,4 +1,4 @@
-#include "main.h"
+#include "utility.h"
 
 enum class Direction
 {
@@ -9,11 +9,6 @@ enum class Direction
 	LeftDiagonal,
 	RightDiagonal
 };
-
-bool isDark(QColor color)
-{
-	return (color.redF() + color.greenF() + color.blueF()) < 0.5;
-}
 
 void logDirection(ThreadedBrain & brain, Direction direction)
 {
@@ -50,19 +45,19 @@ Direction findDirection(ThreadedBrain &brain)
 {
 	auto sensor = brain.tileSensor();
 
-	if (isDark(sensor.get(1,0)))
+	if (isSensorDark(brain, 1, 0))
 		return Direction::Forward;
 
-	if (isDark(sensor.get(0,-1)))
+	if (isSensorDark(brain, 0, -1))
 		return Direction::Left;
 
-	if (isDark(sensor.get(0,1)))
+	if (isSensorDark(brain, 0, 1))
 		return Direction::Right;
 
-	if (isDark(sensor.get(1,-1)))
+	if (isSensorDark(brain, 1, -1))
 		return Direction::LeftDiagonal;
 
-	if (isDark(sensor.get(1,1)))
+	if (isSensorDark(brain, 1, 1))
 		return Direction::RightDiagonal;
 
 	return Direction::None;
