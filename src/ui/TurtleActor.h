@@ -95,6 +95,7 @@ namespace Turtle
 		double & linearSpeed(void) { return m_internalState.linearSpeed; }
 		double & rotationSpeed(void) { return m_internalState.rotationSpeed; }
 		const QImage & tileSensorImage() const { return m_tileSensor; }
+		TileSensor tileSensor() const { return m_internalState.tileSensor;}
 
 
 		//Control functions
@@ -126,12 +127,6 @@ namespace Turtle
 		void setPen(const Pen & pen);
 
 
-		//Sensor functions
-		//----------------
-
-		TileSensor tileSensor();
-
-
 	protected:
 		static const double pi;
 		static double normalizeAngle(double angle);
@@ -140,10 +135,12 @@ namespace Turtle
 		void stepAngle(int steps);
 		void stepPen();
 		void updateTransformMatrix();
+		void stepTileSensor();
 
 		struct InternalState
 		{
 			TilePosition2D lastPosition;
+			TileSensor tileSensor;
 
 			//Speed, in units/step
 			double linearSpeed;

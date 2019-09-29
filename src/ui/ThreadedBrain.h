@@ -10,6 +10,7 @@
 #include <QPointer>
 
 #include "Types.h"
+#include "TileSensor.h"
 
 //This object always lives in a separate thread
 class ThreadedBrain : public QObject
@@ -54,6 +55,9 @@ public:
 	void turnLeft() {rotate(0.25);}
 	void turnRight() {rotate(-0.25);}
 
+	//Get the tile sensor
+	Turtle::TileSensor tileSensor();
+
 
 signals:
 	void started();
@@ -67,12 +71,15 @@ signals:
 	void signalMove(Turtle::Position2D::value_type distance);
 	void signalRotate(const double angle) const;
 
+	void getTileSensor();
+
 
 public slots:
 	void start();
 	void stop();
 
 	void newRunState(bool active);
+	void newTileSensor(Turtle::TileSensor sensor);
 
 private slots:
 	void run();
@@ -83,8 +90,8 @@ private:
 	QVariant requestData(QString title, QString label, QVariant input, bool * ok);
 	QVariant requestDataWorker(QString title, QString label, QVariant input, bool * ok);
 
-
 	QPointer<QObject> controller;
+	Turtle::TileSensor m_tileSensor;
 
 	QEventLoop idleEventLoop;
 

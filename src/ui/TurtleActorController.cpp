@@ -74,6 +74,11 @@ void TurtleActorController::setRotate(const double angle) const
 	actor.rotate(angle);
 }
 
+void TurtleActorController::getTileSensor()
+{
+	emit newTileSensor(actor.tileSensor());
+}
+
 void TurtleActorController::callback(TurtleActor::CallbackType type)
 {
 	switch (type)

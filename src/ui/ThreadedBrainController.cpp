@@ -11,6 +11,7 @@ ThreadedBrainController::ThreadedBrainController(
 
 	qRegisterMetaType<Turtle::Position2D>("Turtle::Position2D");
 	qRegisterMetaType<Turtle::Position2D::value_type>("Turtle::Position2D::value_type");
+	qRegisterMetaType<Turtle::TileSensor>("Turtle::TileSensor");
 
 	connect(brain, &ThreadedBrain::started, this, &ThreadedBrainController::started);
 	connect(brain, &ThreadedBrain::stopped, this, &ThreadedBrainController::stopped);
@@ -23,7 +24,10 @@ ThreadedBrainController::ThreadedBrainController(
 	connect(brain, &ThreadedBrain::signalMove, controller, &TurtleActorController::setMove);
 	connect(brain, &ThreadedBrain::signalRotate, controller, &TurtleActorController::setRotate);
 
+	connect(brain, &ThreadedBrain::getTileSensor, controller, &TurtleActorController::getTileSensor);
+
 	connect(controller, &TurtleActorController::newRunState, brain, &ThreadedBrain::newRunState);
+	connect(controller, &TurtleActorController::newTileSensor, brain, &ThreadedBrain::newTileSensor);
 
 	brainThread.start();
 }

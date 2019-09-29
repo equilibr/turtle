@@ -16,9 +16,9 @@ namespace Turtle
 		using Data = std::vector<QColor>;
 
 		TileSensor() = default;
-		TileSensor(const TileSensor &) = default;
-
+		TileSensor(const TileSensor & rhs);
 		TileSensor(const Data & data, int size = 3);
+		TileSensor & operator=(const TileSensor &rhs);
 
 		//Return the color at a given position
 		QColor get(int front, int side) const

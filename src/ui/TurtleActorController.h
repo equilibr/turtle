@@ -26,6 +26,7 @@ public:
 signals:
 	void newState(TurtleActor::State state, TurtleActor::CallbackType action);
 	void newRunState(bool active);
+	void newTileSensor(Turtle::TileSensor sensor);
 
 public slots:
 	void reset() { actor.reset(); }
@@ -52,6 +53,9 @@ public slots:
 
 	//Rotate by some angle
 	void setRotate(const double angle) const;
+
+	//Return the current tile sensor
+	void getTileSensor();
 
 private:
 	void callback(TurtleActor::CallbackType type);

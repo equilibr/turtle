@@ -70,6 +70,15 @@ void ThreadedBrain::rotate(double angle)
 	waitForActive();
 }
 
+Turtle::TileSensor ThreadedBrain::tileSensor()
+{
+	emit getTileSensor();
+	if (*this)
+		idleEventLoop.exec();
+
+	return m_tileSensor;
+}
+
 void ThreadedBrain::start()
 {
 	setActive(true);
@@ -87,6 +96,13 @@ void ThreadedBrain::stop()
 
 void ThreadedBrain::newRunState(bool active)
 {
+	if (active)
+		QMetaObject::invokeMethod(this, &ThreadedBrain::stopWaitingForActive, Qt::QueuedConnection);
+}
+
+void ThreadedBrain::newTileSensor(Turtle::TileSensor sensor)
+{
+	m_tileSensor = sensor;
 	if (active)
 		QMetaObject::invokeMethod(this, &ThreadedBrain::stopWaitingForActive, Qt::QueuedConnection);
 }
