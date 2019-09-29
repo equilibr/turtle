@@ -114,7 +114,7 @@ void ThreadedBrain::newTileSensor(Turtle::TileSensor sensor)
 void ThreadedBrain::run()
 {
 	//Main execution function
-	MainBrain(*this);
+	Main(*this);
 
 	setActive(false);
 	emit stopped();

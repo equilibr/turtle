@@ -4,14 +4,14 @@
 #include <vector>
 #include <utility>
 
-void MainBrain(ThreadedBrain & brain)
+void Main(ThreadedBrain & brain)
 {
 	using Algorithm = std::function<void(ThreadedBrain&)>;
 
 	std::vector<std::pair<Algorithm, QString>> algorithms =
 	{
-		{MainBrainDraw, "Draw"},
-		{MainBrainFollow, "Follow"},
+		{Draw, "Draw"},
+		{Follow, "Follow"},
 	};
 
 	QString algorithmList;

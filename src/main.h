@@ -3,9 +3,9 @@
 
 #include "ThreadedBrain.h"
 
-void MainBrain(ThreadedBrain &brain);
+void Main(ThreadedBrain &brain);
 
-void MainBrainDraw(ThreadedBrain &brain);
-void MainBrainFollow(ThreadedBrain &brain);
+void Draw(ThreadedBrain &brain);
+void Follow(ThreadedBrain &brain);
 
 #endif // MAINBRAIN_H

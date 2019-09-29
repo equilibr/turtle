@@ -173,7 +173,7 @@ void drawI(ThreadedBrain & brain, double height, Point offset = {})
 	moveTo(brain,0,0);
 }
 
-void MainBrainDraw(ThreadedBrain &brain)
+void Draw(ThreadedBrain &brain)
 {
 	currentX = 0;
 	currentY = 0;

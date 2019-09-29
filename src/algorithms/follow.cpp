@@ -112,7 +112,7 @@ bool advance(ThreadedBrain &brain)
 	return true;
 }
 
-void MainBrainFollow(ThreadedBrain &brain)
+void Follow(ThreadedBrain &brain)
 {
 	//Run as long as we have where to move
 	while (brain && advance(brain)) ;
