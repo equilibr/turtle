@@ -40,12 +40,12 @@ public:
 	void setTargetAngle(double target);
 
 	//Set the pen color
-	void setPenColor(QColor color);
+	void setPenColor(QColor color = Qt::black);
 	void setPenColor(double red, double green, double blue);
 	void setPenColor(double hue, double saturation);
 
 	//Set the pen state
-	void setPenDown(bool down);
+	void setPenDown(bool down = true);
 
 	//Move on the current heading(angle)
 	void move(double distance = 1.0);

@@ -7,5 +7,6 @@ void Main(ThreadedBrain &brain);
 
 void Draw(ThreadedBrain &brain);
 void Follow(ThreadedBrain &brain);
+void Adder(ThreadedBrain &brain);
 
 #endif // MAINBRAIN_H

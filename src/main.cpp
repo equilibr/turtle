@@ -12,6 +12,7 @@ void Main(ThreadedBrain & brain)
 	{
 		{Draw, "Draw"},
 		{Follow, "Follow"},
+		{Adder, "Adder"},
 	};
 
 	QString algorithmList;
@@ -22,10 +23,13 @@ void Main(ThreadedBrain & brain)
 		algorithmList.append("\n");
 	}
 
+	static int lastSelection = 0;
 	bool ok;
-	size_t algorithm = static_cast<size_t>(brain.getInteger("Select an algorithm", algorithmList, 0, &ok));
+	lastSelection = brain.getInteger("Select an algorithm", algorithmList, lastSelection, &ok);
 	if (!ok)
 		return;
+
+	const size_t algorithm = static_cast<size_t>(lastSelection);
 
 	if (algorithm >= algorithms.size())
 	{

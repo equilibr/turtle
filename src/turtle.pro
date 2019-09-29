@@ -26,6 +26,7 @@ LIBS += -losgFX
 DESTDIR = ../bin
 
 SOURCES += \
+		algorithms/adder.cpp \
 		algorithms/draw.cpp \
 		algorithms/follow.cpp \
 		algorithms/utility.cpp \
