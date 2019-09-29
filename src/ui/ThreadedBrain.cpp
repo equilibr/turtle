@@ -117,7 +117,7 @@ Turtle::TileSensor ThreadedBrain::tileSensor()
 	return m_tileSensor;
 }
 
-Turtle::Command ThreadedBrain::sendCommand(Turtle::Command command)
+Turtle::Command ThreadedBrain::sendCommand(const Turtle::Command & command)
 {
 	emit signalSendCommand(command);
 	waitForActive();
@@ -166,7 +166,7 @@ void ThreadedBrain::newTileSensor(Turtle::TileSensor sensor)
 		QMetaObject::invokeMethod(this, &ThreadedBrain::stopWaitingForActive, Qt::QueuedConnection);
 }
 
-void ThreadedBrain::commandReply(Turtle::Command data)
+void ThreadedBrain::commandReply(const Turtle::Command & data)
 {
 	commandData = data;
 	if (active)

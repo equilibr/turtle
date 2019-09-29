@@ -94,11 +94,11 @@ void TurtleActorController::getTileSensor()
 	emit newTileSensor(actor.tileSensor());
 }
 
-void TurtleActorController::command(Command data)
+void TurtleActorController::command(const Command & data)
 {
 	Command reply = data;
-	data.reply = true;
-	data.valid = false;
+	reply.reply = true;
+	reply.valid = false;
 
 	emit commandReply(reply);
 }

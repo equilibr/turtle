@@ -74,7 +74,7 @@ public:
 
 	//Send a command to the controller and return the result
 	//This function will block until the command is complete
-	Turtle::Command sendCommand(Turtle::Command command);
+	Turtle::Command sendCommand(const Turtle::Command & command);
 
 
 signals:
@@ -109,7 +109,7 @@ public slots:
 	void newTileSensor(Turtle::TileSensor sensor);
 
 	//Should be called when the current command is done and it's data is ready
-	void commandReply(Turtle::Command  data);
+	void commandReply(const Turtle::Command & data);
 
 private slots:
 	void run();

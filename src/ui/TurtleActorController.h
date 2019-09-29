@@ -33,7 +33,7 @@ signals:
 	void newTileSensor(Turtle::TileSensor sensor);
 
 	//Emmited when a new command reply is available
-	void commandReply(Turtle::Command  data);
+	void commandReply(Turtle::Command data);
 
 public slots:
 	void reset() { actor.reset(); }
@@ -71,7 +71,7 @@ public slots:
 	//Return the current tile sensor
 	void getTileSensor();
 
-	void command(Turtle::Command  data);
+	void command(const Command & data);
 
 private:
 	void callback(TurtleActor::CallbackType type);
