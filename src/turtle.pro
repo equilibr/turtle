@@ -32,6 +32,7 @@ SOURCES += \
 		algorithms/follow.cpp \
 		algorithms/utility.cpp \
 		ui/Actor.cpp \
+		ui/Command.cpp \
 		ui/ImageDisplay.cpp \
 		ui/MainEntryPoint.cpp \
 		ui/MainWindow.cpp \
@@ -52,6 +53,7 @@ HEADERS += \
 	algorithms/Checker.h \
 	algorithms/utility.h \
 	ui/Actor.h \
+	ui/Command.h \
 	ui/ImageDisplay.h \
 	ui/MainWindow.h \
 	ui/QtOSGMouseHandler.h \

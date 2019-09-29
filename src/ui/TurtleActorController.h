@@ -3,6 +3,7 @@
 
 #include <QObject>
 
+#include "Command.h"
 #include "TurtleActor.h"
 
 using namespace Turtle;
@@ -30,6 +31,9 @@ signals:
 	void newCurrentState(TurtleActor::State state);
 	void newTile(QColor color);
 	void newTileSensor(Turtle::TileSensor sensor);
+
+	//Emmited when a new command reply is available
+	void commandReply(Turtle::Command  data);
 
 public slots:
 	void reset() { actor.reset(); }
@@ -66,6 +70,8 @@ public slots:
 
 	//Return the current tile sensor
 	void getTileSensor();
+
+	void command(Turtle::Command  data);
 
 private:
 	void callback(TurtleActor::CallbackType type);

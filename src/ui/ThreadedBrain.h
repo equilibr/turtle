@@ -10,6 +10,7 @@
 #include <QPointer>
 
 #include "Types.h"
+#include "Command.h"
 #include "TileSensor.h"
 #include "TurtleActor.h"
 
@@ -71,6 +72,10 @@ public:
 	//Get the tile sensor
 	Turtle::TileSensor tileSensor();
 
+	//Send a command to the controller and return the result
+	//This function will block until the command is complete
+	Turtle::Command sendCommand(Turtle::Command command);
+
 
 signals:
 	void started();
@@ -90,6 +95,9 @@ signals:
 
 	void signalGetTileSensor();
 
+	//The signal mathing to sendCommand
+	void signalSendCommand(Turtle::Command command);
+
 
 public slots:
 	void start();
@@ -100,6 +108,9 @@ public slots:
 	void newTile(QColor color);
 	void newTileSensor(Turtle::TileSensor sensor);
 
+	//Should be called when the current command is done and it's data is ready
+	void commandReply(Turtle::Command  data);
+
 private slots:
 	void run();
 
@@ -109,10 +120,16 @@ private:
 	QVariant requestData(QString title, QString label, QVariant input, bool * ok);
 	QVariant requestDataWorker(QString title, QString label, QVariant input, bool * ok);
 
+	//Internally called after the command reply is received and stored
+	//This will unblock the sendCommand function and ready the data
+	void commandDone();
+
 	QPointer<QObject> controller;
 	Turtle::TurtleActor::State m_state;
 	Turtle::TileSensor m_tileSensor;
 	QColor m_tile;
+
+	Turtle::Command commandData;
 
 	QEventLoop idleEventLoop;
 

@@ -117,6 +117,13 @@ Turtle::TileSensor ThreadedBrain::tileSensor()
 	return m_tileSensor;
 }
 
+Turtle::Command ThreadedBrain::sendCommand(Turtle::Command command)
+{
+	emit signalSendCommand(command);
+	waitForActive();
+	return commandData;
+}
+
 void ThreadedBrain::start()
 {
 	setActive(true);
@@ -157,6 +164,13 @@ void ThreadedBrain::newTileSensor(Turtle::TileSensor sensor)
 	m_tileSensor = sensor;
 	if (active)
 		QMetaObject::invokeMethod(this, &ThreadedBrain::stopWaitingForActive, Qt::QueuedConnection);
+}
+
+void ThreadedBrain::commandReply(Turtle::Command data)
+{
+	commandData = data;
+	if (active)
+		QMetaObject::invokeMethod(this, &ThreadedBrain::commandDone, Qt::QueuedConnection);
 }
 
 void ThreadedBrain::run()
@@ -248,4 +262,9 @@ QVariant ThreadedBrain::requestDataWorker(QString title, QString label, QVariant
 		default:
 			return {};
 	}
+}
+
+void ThreadedBrain::commandDone()
+{
+	idleEventLoop.quit();
 }

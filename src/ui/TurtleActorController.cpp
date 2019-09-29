@@ -94,6 +94,15 @@ void TurtleActorController::getTileSensor()
 	emit newTileSensor(actor.tileSensor());
 }
 
+void TurtleActorController::command(Command data)
+{
+	Command reply = data;
+	data.reply = true;
+	data.valid = false;
+
+	emit commandReply(reply);
+}
+
 void TurtleActorController::callback(TurtleActor::CallbackType type)
 {
 	switch (type)
