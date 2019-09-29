@@ -73,9 +73,7 @@ void ThreadedBrain::rotate(double angle)
 Turtle::TileSensor ThreadedBrain::tileSensor()
 {
 	emit getTileSensor();
-	if (*this)
-		idleEventLoop.exec();
-
+	waitForActive();
 	return m_tileSensor;
 }
 

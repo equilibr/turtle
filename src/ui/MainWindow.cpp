@@ -246,6 +246,34 @@ void MainWindow::newState(TurtleActor::State state, TurtleActor::CallbackType ac
 	}
 }
 
+void MainWindow::on_actionLoad_triggered()
+{
+	auto list = QImageWriter::supportedImageFormats();
+	QString filetypes = "Images (";
+
+	for (auto i : list)
+	{
+		filetypes.append("*.");
+		filetypes.append(i);
+		filetypes.append(" ");
+	}
+	filetypes.append(")");
+
+	QFile file;
+	file.setFileName(
+				QFileDialog::getOpenFileName(
+					this,
+					tr("Select load file"),
+					QStandardPaths::writableLocation(QStandardPaths::PicturesLocation),
+					filetypes)
+				);
+
+	if (file.fileName().isEmpty())
+		return;
+
+	world.setImage(QImage{file.fileName()});
+}
+
 void MainWindow::on_actionSave_as_triggered()
 {
 	auto list = QImageWriter::supportedImageFormats();

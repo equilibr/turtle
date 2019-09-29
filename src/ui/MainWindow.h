@@ -44,6 +44,7 @@ protected slots:
 private slots:
 	void newState(TurtleActor::State state, TurtleActor::CallbackType action);
 
+	void on_actionLoad_triggered();
 	void on_actionSave_as_triggered();
 	void on_actionClear_log_triggered();
 	void on_actionExit_triggered();

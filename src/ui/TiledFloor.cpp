@@ -22,14 +22,13 @@ TiledFloor::TiledFloor(
 
 void TiledFloor::setImage(const QImage & image)
 {
-	Coordinate<int,2> p {image.width(), image.height()};
-	reset(p, m_tileSize);
+	m_image = image;
 
 	//Copy image data to texture
-	for (int s = 0; s < image.width(); ++s)
-		for (int t = 0; t < image.height(); ++t)
+	for (int s = 0; s < m_image.width(); ++s)
+		for (int t = 0; t < m_image.height(); ++t)
 		{
-			QColor color = image.pixelColor(s,t);
+			QColor color = m_image.pixelColor(s,t);
 			m_textureImage->setColor(fromQColor(color), static_cast<unsigned int>(s), static_cast<unsigned int>(t));
 		}
 }

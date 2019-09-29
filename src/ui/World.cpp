@@ -30,6 +30,30 @@ void World::reset()
 	m_mainActor.reset();
 }
 
+void World::setImage(const QImage & image)
+{
+	//Make sure the image size is 2*N + 1 at both dimention
+	// and copy a subset if not.
+
+	auto size = image.size();
+
+	if (!(size.width() % 2))
+		size.setWidth(size.width()-1);
+
+	if (!(size.height() % 2))
+		size.setHeight(size.height()-1);
+
+	//Calculate the half-size
+	Index2D halfSize = Index2D
+	{
+			static_cast<Index2D::value_type>((size.width() - 1) / 2),
+			static_cast<Index2D::value_type>((size.height() - 1) / 2)
+	};
+
+	resize(halfSize);
+	m_floor.setImage(image.copy({{0,0},size}));
+}
+
 bool World::operator()(int steps)
 {
 	bool dirty = false;

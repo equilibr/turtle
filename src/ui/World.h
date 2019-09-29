@@ -23,6 +23,9 @@ namespace Turtle
 		void resize(const Index2D & size, const Position2D & tileSize = {1,1});
 		void reset();
 
+		//Set a new image
+		void setImage(const QImage & image);
+
 		//Execute the simulated world step(s)
 		//Returns whether something in the world changed
 		bool operator()(int steps = 1);

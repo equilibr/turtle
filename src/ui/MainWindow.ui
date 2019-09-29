@@ -368,6 +368,7 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <addaction name="actionLoad"/>
     <addaction name="actionSave_as"/>
     <addaction name="actionClear_log"/>
     <addaction name="separator"/>
@@ -437,6 +438,11 @@
   <action name="actionResize">
    <property name="text">
     <string>Resize...</string>
+   </property>
+  </action>
+  <action name="actionLoad">
+   <property name="text">
+    <string>Load...</string>
    </property>
   </action>
  </widget>
