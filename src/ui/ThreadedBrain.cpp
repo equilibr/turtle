@@ -114,7 +114,19 @@ void ThreadedBrain::newTileSensor(Turtle::TileSensor sensor)
 void ThreadedBrain::run()
 {
 	//Main execution function
-	Main(*this);
+	try
+	{
+		Main(*this);
+	}
+	catch(const std::exception & e)
+	{
+		log("<font color = \"red\">Exception: " + QString(e.what()) + "</font>");
+	}
+	catch(...)
+	{
+		log("<font color = \"red\">Exception</font>");
+	}
+
 
 	setActive(false);
 	emit stopped();
