@@ -3,6 +3,9 @@
 
 #include "ThreadedBrain.h"
 
+//goto top-right
+void gotoTR(ThreadedBrain &brain);
+
 //Move relative to current position
 void goTo(ThreadedBrain & brain, int forward, int side, bool keepHeading = true);
 

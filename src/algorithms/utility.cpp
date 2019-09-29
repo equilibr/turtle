@@ -2,6 +2,13 @@
 
 constexpr int maximumBits = 32;
 
+void gotoTR(ThreadedBrain &brain)
+{
+	brain.setTargetPosition({1000,1000});
+	brain.setTargetAngle(-0.5);
+	goTo(brain, 0,-3);
+}
+
 void goTo(ThreadedBrain & brain, int forward, int side, bool keepHeading)
 {
 	brain.move(forward);
@@ -221,11 +228,13 @@ void writeNumber(
 	//Number of steps moved
 	int steps = 0;
 
-	brain.setPenDown(true);
+
 
 	if (markers)
 	{
+		brain.setPenDown(true);
 		brain.setPenColor(Qt::green);
+		brain.setPenDown(false);
 		brain.move();
 		steps++;
 	}
@@ -239,19 +248,23 @@ void writeNumber(
 			return;
 		}
 
+		brain.setPenDown(true);
 		if (number & (1 << i))
 			brain.setPenColor(Qt::black);
 		else
 			brain.setPenColor(Qt::white);
+		brain.setPenDown(false);
 
 		brain.move();
 		steps++;
 	}
 
 	if (markers)
+	{
+		brain.setPenDown(true);
 		brain.setPenColor(Qt::red);
-
-	brain.setPenDown(false);
+		brain.setPenDown(false);
+	}
 
 	if (reset)
 		brain.move(-steps);

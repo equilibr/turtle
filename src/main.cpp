@@ -1,4 +1,5 @@
 #include "main.h"
+#include "algorithms/utility.h"
 
 #include <functional>
 #include <vector>
@@ -10,6 +11,7 @@ void Main(ThreadedBrain & brain)
 
 	std::vector<std::pair<Algorithm, QString>> algorithms =
 	{
+		{gotoTR, "Goto top-right"},
 		{Draw, "Draw"},
 		{Follow, "Follow"},
 		{Adder, "Adder"},
