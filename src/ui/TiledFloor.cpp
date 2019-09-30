@@ -76,6 +76,11 @@ void TiledFloor::clear()
 	m_textureImage->dirty();
 }
 
+TilePosition2D TiledFloor::clamp(const TilePosition2D & position, const TilePosition2D & margin)
+{
+	return position.max(-m_halfIndexSize + margin).min(m_halfIndexSize - margin);
+}
+
 TileSensor TiledFloor::getTiles(const TilePosition2D position, size_t size) const
 {
 	//Adjust the position to be inside our bounds

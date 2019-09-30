@@ -151,7 +151,7 @@ namespace Turtle
 		static const double pi;
 		static double normalizeAngle(double angle);
 
-		void processCommand();
+		void processSetCommand();
 
 		void stepHat(int steps);
 		void stepPosition(int steps);
@@ -171,9 +171,6 @@ namespace Turtle
 
 			//The last position where the pen drawed
 			TilePosition2D lastPenPosition;
-
-			//The touch pen is in absolute coordinates
-			bool touchAbsolute;
 
 			//The pen is dirty and should be updated
 			bool penDirty;
@@ -208,6 +205,8 @@ namespace Turtle
 	private:
 
 		void updateHeading();
+
+		void updateCommandPosition();
 
 		//Given a position in global coordinates transform it to a position in local coordinates
 		TilePosition2D positionToLocal(TilePosition2D position) const;

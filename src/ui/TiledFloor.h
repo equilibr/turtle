@@ -41,6 +41,9 @@ namespace Turtle
 		//Clear the floor to its initial state
 		void clear();
 
+		//Clamp the index to the bounding box
+		TilePosition2D clamp(const TilePosition2D & position, const TilePosition2D & margin = {});
+
 		//Set a pixel color at a given position
 		void setColor(const Position2D & position, const QColor & color) {setColor(toIndex(position),color);}
 		void setColor(const TilePosition2D & position, const QColor & color) {setColor(toIndex(position),color);}
