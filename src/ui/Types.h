@@ -257,6 +257,32 @@ namespace Turtle
 	using IndexPoint = size_t;
 	using Index2D = Coordinate<IndexPoint,2>;
 	using Index3D = Coordinate<IndexPoint,3>;
+
+	//Absolute heading
+	enum class Heading
+	{
+		PositiveX,
+		NegativeX,
+		PositiveY,
+		NegativeY
+	};
+
+	//Relative direction
+	enum class Direction
+	{
+		None,
+
+		Forward,
+		Backward,
+		Left,
+		Right,
+
+		ForwardLeft,
+		ForwardRight,
+		BackwardLeft,
+		BackwardRight,
+	};
+
 }
 
 #endif // TYPES_H

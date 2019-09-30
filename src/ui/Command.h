@@ -95,29 +95,10 @@ namespace Turtle
 			double angle;
 
 			//Relative direction
-			enum class Direction
-			{
-				None,
-
-				Forward,
-				Backward,
-				Left,
-				Right,
-
-				ForwardLeft,
-				ForwardRight,
-				BackwardLeft,
-				BackwardRight,
-			} direction;
+			Direction direction;
 
 			//Absolute heading
-			enum class Heading
-			{
-				PositiveX,
-				NegativeX,
-				PositiveY,
-				NegativeY
-			} heading;
+			Heading heading;
 
 			TileSensor tileSensor;
 		};

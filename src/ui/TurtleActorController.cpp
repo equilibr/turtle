@@ -113,6 +113,10 @@ void TurtleActorController::command(const Command & data)
 			const bool ok = actor.command(commandData);
 			if (!ok || (data.data.turtle.command == Command::Turtle::Command::Get))
 				emit commandReply(commandData);
+			else
+				//Set as valid since the command was accepted an it will
+				// be successfully completed
+				commandData.valid = true;
 			break;
 	}
 }

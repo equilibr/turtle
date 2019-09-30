@@ -20,12 +20,7 @@ TurtleActor::TurtleActor(World &world) :
 
 bool TurtleActor::operator()(int steps)
 {
-	//Hat color cycle
-	//---------------
-
-	float alpha = static_cast<float>(sin(pi * m_internalState.colorCycle));
-	m_internalState.colorCycle = fmod(m_internalState.colorCycle + steps * 1e-1 / m_internalState.cycleSpeed, 1);
-	m_robot.setHatColor({0,1-alpha,alpha,1});
+	stepHat(steps);
 
 	if (!m_internalState.active && m_internalState.unpause)
 	{
@@ -37,21 +32,17 @@ bool TurtleActor::operator()(int steps)
 	if (!m_internalState.pending || !m_internalState.active)
 		return false;
 
-	//Assume all pending actions will finish in this iteration
+	//Assume all pending actions might finish in this iteration
 	m_internalState.pending = false;
+
+	processCommand();
+
 	stepPosition(steps);
 	stepAngle(steps);
+	updateState();
 	stepPen();
 
-
-	//Notification and action
-	//-----------------------
-
-	updateTransformMatrix();
 	callback(CallbackType::Current);
-
-	//Call this here for it's side effect of setting the image
-	stepTileSensor();
 
 	//No more pending actions
 	if (!m_internalState.pending)
@@ -96,9 +87,10 @@ bool TurtleActor::commandSet(Command & data)
 {
 	commandData = data;
 
-	//Analyze the command for error and conditions and set the pending flag acordingly
+	//Analyze the command for errors and conditions and set the pending flag acordingly
 
 
+	m_internalState.pending |= commandData.valid;
 	return m_internalState.pending;
 }
 
@@ -119,9 +111,7 @@ void TurtleActor::reset()
 
 	m_tileSensor = QImage(tileSensorSize*2 + 1, tileSensorSize*2 + 1, QImage::Format_ARGB32);
 
-	updateTransformMatrix();
-	stepTileSensor();
-
+	updateState();
 	callback(CallbackType::Reset);
 }
 
@@ -186,9 +176,7 @@ QColor TurtleActor::getTile(const TilePosition2D offset, bool absolute)
 	if (absolute)
 		touchTile = offset;
 	else
-		touchTile =
-				m_state.tilePosition +
-				positionToGlobal(offset, currentDirection());
+		touchTile = m_state.tilePosition + positionToGlobal(offset);
 
 	return m_world.floor().getColor(touchTile);
 }
@@ -196,6 +184,54 @@ QColor TurtleActor::getTile(const TilePosition2D offset, bool absolute)
 double TurtleActor::normalizeAngle(double angle)
 {
 	return fmod(angle + 1.5, 1.0) - 0.5;
+}
+
+void TurtleActor::processCommand()
+{
+	if (!commandData.valid)
+		return;
+
+	//World position
+	Position2D worldPosition;
+
+	//Tile index
+	TilePosition2D tilePosition;
+
+	//Angle
+	double angle;
+
+	if (commandData.data.turtle.absolute)
+	{
+		worldPosition = commandData.data.turtle.position;
+		tilePosition = commandData.data.turtle.tile;
+		angle = commandData.data.turtle.angle;
+	}
+	else
+	{
+		worldPosition = m_state.current.position
+				+ positionToGlobal(commandData.data.turtle.position);
+
+		tilePosition = m_state.tilePosition
+				+ positionToGlobal(commandData.data.turtle.tile);
+
+		angle =
+				normalizeAngle(m_state.current.angle + commandData.data.turtle.angle);
+	}
+
+
+
+
+
+
+
+	commandData.valid = false;
+}
+
+void TurtleActor::stepHat(int steps)
+{
+	float alpha = static_cast<float>(sin(pi * m_internalState.colorCycle));
+	m_internalState.colorCycle = fmod(m_internalState.colorCycle + steps * 1e-1 / m_internalState.cycleSpeed, 1);
+	m_robot.setHatColor({0,1-alpha,alpha,1});
 }
 
 void TurtleActor::stepPosition(int steps)
@@ -265,7 +301,7 @@ void TurtleActor::stepPen()
 		else
 			touchTile =
 					m_state.tilePosition +
-					positionToGlobal(m_state.touchPen.offset, currentDirection());
+					positionToGlobal(m_state.touchPen.offset, m_state.heading);
 
 		m_world.floor().setColor(touchTile, m_state.touchPen.color);
 		m_internalState.penDirty = true;
@@ -278,29 +314,28 @@ void TurtleActor::stepPen()
 	}
 }
 
-void TurtleActor::updateTransformMatrix()
+void TurtleActor::updateState()
 {
-	m_state.tilePosition = m_world.floor().toTileIndex(m_state.current.position);
-
 	m_root->setMatrix(
 				osg::Matrix::rotate(2*pi*m_state.current.angle,0,0,1) *
 				osg::Matrix::translate(static_cast<osg::Vec3>(m_state.current.position))
 				);
+
+	m_state.tilePosition = m_world.floor().toTileIndex(m_state.current.position);
+	updateHeading();
+	updateTileSensor();
 }
 
-void TurtleActor::stepTileSensor()
+void TurtleActor::updateTileSensor()
 {
 	//Get the tile data
 	const auto raw = m_world.floor().getTiles(m_state.tilePosition, tileSensorSize);
-
-	//Axis-centered direction
-	const auto direction = currentDirection();
 
 	TileSensor::Data data;
 	for (int front = -tileSensorSize; front <= tileSensorSize; ++front)
 		for (int side = -tileSensorSize; side <= tileSensorSize; ++side)
 		{
-			const auto color = raw.get(positionToLocal({front, side}, direction));
+			const auto color = raw.get(positionToLocal({front, side}));
 
 			data.push_back(color);
 
@@ -314,51 +349,65 @@ void TurtleActor::stepTileSensor()
 	m_internalState.tileSensor = {data, tileSensorSize};
 }
 
-TurtleActor::Direction TurtleActor::currentDirection()
+void TurtleActor::updateHeading()
 {
 	//Find the direction
 	constexpr double quanta = 1.0 / 8;
 
 	if ((m_state.current.angle >= -quanta) && (m_state.current.angle <= quanta))
-		return Direction::PositiveX;
+		m_state.heading = Heading::PositiveX;
 	else if ((m_state.current.angle > quanta) && (m_state.current.angle < 3*quanta))
-		return Direction::PositiveY;
+		m_state.heading = Heading::PositiveY;
 	else if ((m_state.current.angle < -quanta) && (m_state.current.angle > -3*quanta))
-		return Direction::NegativeY;
+		m_state.heading = Heading::NegativeY;
 	else
-		return Direction::NegativeX;
+		m_state.heading = Heading::NegativeX;
 }
 
-TilePosition2D TurtleActor::positionToLocal(TilePosition2D position, TurtleActor::Direction direction)
+TilePosition2D TurtleActor::positionToLocal(const TilePosition2D position) const
 {
 	const auto front = position.x();
 	const auto side = position.y();
 
-	switch (direction)
+	switch (m_state.heading)
 	{
-		case Direction::PositiveX: return {-side,front};
-		case Direction::NegativeX: return {side,-front};
-		case Direction::PositiveY: return {front,side};
-		case Direction::NegativeY: return {-front,-side};
+		case Heading::PositiveX: return {-side,front};
+		case Heading::NegativeX: return {side,-front};
+		case Heading::PositiveY: return {front,side};
+		case Heading::NegativeY: return {-front,-side};
 	}
 
 	return {front, side};
 }
 
-TilePosition2D TurtleActor::positionToGlobal(TilePosition2D position, TurtleActor::Direction direction)
+TilePosition2D TurtleActor::positionToGlobal(const TilePosition2D position) const
 {
 	const auto front = position.x();
 	const auto side = position.y();
 
-	switch (direction)
+	switch (m_state.heading)
 	{
-		case Direction::PositiveX: return {front, -side};
-		case Direction::NegativeX: return {-front, side};
-		case Direction::PositiveY: return {side,front};
-		case Direction::NegativeY: return {-side,-front};
+		case Heading::PositiveX: return {front, -side};
+		case Heading::NegativeX: return {-front, side};
+		case Heading::PositiveY: return {side,front};
+		case Heading::NegativeY: return {-side,-front};
 	}
 
 	return {front, side};
+}
+
+Position2D TurtleActor::positionToGlobal(const Position2D position) const
+{
+	const Position2D delta
+	{
+		position.x() * cos(2*pi*m_state.current.angle)
+				+ position.y() * sin(2*pi*m_state.current.angle),
+
+		position.x() * sin(2*pi*m_state.current.angle)
+				+ position.y() * cos(2*pi*m_state.current.angle)
+	};
+
+	return m_state.current.position + delta;
 }
 
 void TurtleActor::callback(CallbackType type)

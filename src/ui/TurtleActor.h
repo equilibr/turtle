@@ -69,6 +69,7 @@ namespace Turtle
 
 			Relative relative;
 			TilePosition2D tilePosition;
+			Heading heading;
 		};
 
 		enum class CallbackType
@@ -151,11 +152,14 @@ namespace Turtle
 		static const double pi;
 		static double normalizeAngle(double angle);
 
+		void processCommand();
+
+		void stepHat(int steps);
 		void stepPosition(int steps);
 		void stepAngle(int steps);
 		void stepPen();
-		void updateTransformMatrix();
-		void stepTileSensor();
+		void updateState();
+		void updateTileSensor();
 
 		struct InternalState
 		{
@@ -203,18 +207,15 @@ namespace Turtle
 		Command commandData;
 
 	private:
-		//Axis-centered direction
-		enum class Direction
-		{
-			PositiveX,
-			NegativeX,
-			PositiveY,
-			NegativeY
-		};
 
-		Direction currentDirection();
-		TilePosition2D positionToLocal(TilePosition2D position, Direction direction);
-		TilePosition2D positionToGlobal(TilePosition2D position, Direction direction);
+		void updateHeading();
+
+		//Given a position in global coordinates transform it to a position in local coordinates
+		TilePosition2D positionToLocal(TilePosition2D position) const;
+
+		//Given a position in local coordinates transform it to a position in global coordinates
+		TilePosition2D positionToGlobal(const TilePosition2D position) const;
+		Position2D positionToGlobal(const Position2D position) const;
 
 		void callback(CallbackType type);
 		Callbacks m_callbacks;
