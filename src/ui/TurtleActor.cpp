@@ -191,6 +191,24 @@ void TurtleActor::processCommand()
 	if (!commandData.valid)
 		return;
 
+	//The Get commands never reach us,
+	// but we check for this anyway.
+	if (commandData.data.turtle.command != Command::Turtle::Command::Set)
+		return;
+
+	//The set bits are only valid for the target and current targets
+	if (
+		(commandData.data.turtle.target != Command::Turtle::Target::Target)
+		&&
+		(commandData.data.turtle.target != Command::Turtle::Target::Current)
+		)
+	{
+		commandData.data.turtle.setPosition = false;
+		commandData.data.turtle.setHeading = false;
+		commandData.data.turtle.setPenColor = false;
+		commandData.data.turtle.setPenState = false;
+	}
+
 	//World position
 	Position2D worldPosition;
 
@@ -200,10 +218,15 @@ void TurtleActor::processCommand()
 	//Angle
 	double angle;
 
+	//Quantized heading
+	//For now the quantized heading is not handled
+	Heading heading;
+
 	if (commandData.data.turtle.absolute)
 	{
 		worldPosition = commandData.data.turtle.position;
 		tilePosition = commandData.data.turtle.tile;
+
 		angle = commandData.data.turtle.angle;
 	}
 	else
@@ -214,15 +237,47 @@ void TurtleActor::processCommand()
 		tilePosition = m_state.tilePosition
 				+ positionToGlobal(commandData.data.turtle.tile);
 
-		angle =
-				normalizeAngle(m_state.current.angle + commandData.data.turtle.angle);
+		angle = normalizeAngle(m_state.current.angle + commandData.data.turtle.angle);
 	}
 
 
+	//Select who the position calculation is based on
+	//This is done so when using quantized position the actual
+	// position error would not accumulate
+	if (commandData.data.turtle.quantized)
+		worldPosition = m_world.floor().toPosition(tilePosition);
+	else
+		tilePosition = m_world.floor().toTileIndex(worldPosition);
 
+	if (commandData.data.turtle.setPosition)
+	{
+		if (commandData.data.turtle.target == Command::Turtle::Target::Current)
+			m_state.current.position = worldPosition;
 
+		//The target is always set since "current" assumes the position
+		// will stay that way
+		m_state.target.position = worldPosition;
+	}
 
+	if (commandData.data.turtle.setHeading)
+	{
 
+		if (commandData.data.turtle.target == Command::Turtle::Target::Current)
+			m_state.current.angle = angle;
+
+		//The target is always set since "current" assumes the position
+		// will stay that way
+		m_state.current.angle = angle;
+	}
+
+	if (commandData.data.turtle.setPenColor)
+		m_state.pen.color = commandData.data.turtle.color;
+
+	if (commandData.data.turtle.setPenState)
+		m_state.pen.down = commandData.data.turtle.penDown;
+
+	if (commandData.data.turtle.target == Command::Turtle::Target::Tile)
+		m_world.floor().setColor(tilePosition, commandData.data.turtle.color);
 
 	commandData.valid = false;
 }
@@ -288,22 +343,8 @@ void TurtleActor::stepPen()
 	{
 		m_internalState.lastPenPosition = m_state.tilePosition;
 		m_world.floor().setColor(m_state.tilePosition, m_state.pen.color);
-		m_internalState.penDirty = true;
-	}
 
-	if (m_state.touchPen.down)
-	{
-		m_state.touchPen.down = false;
-
-		TilePosition2D touchTile;
-		if (m_internalState.touchAbsolute)
-			touchTile = m_state.touchPen.offset;
-		else
-			touchTile =
-					m_state.tilePosition +
-					positionToGlobal(m_state.touchPen.offset, m_state.heading);
-
-		m_world.floor().setColor(touchTile, m_state.touchPen.color);
+		//Set this so the next block will invoke the callback
 		m_internalState.penDirty = true;
 	}
 

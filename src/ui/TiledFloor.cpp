@@ -101,7 +101,7 @@ TileSensor TiledFloor::getTiles(const TilePosition2D position, size_t size) cons
 	return TileSensor(data, margin);
 }
 
-TilePosition2D TiledFloor::toTileIndex(Position2D position) const
+TilePosition2D TiledFloor::toTileIndex(const Position2D & position) const
 {
 	using T = Position2D::value_type;
 	auto toTile = [](T coord, T size) -> TilePosition2D::value_type
@@ -121,13 +121,18 @@ TilePosition2D TiledFloor::toTileIndex(Position2D position) const
 	};
 }
 
+Position2D TiledFloor::toPosition(const TilePosition2D & index) const
+{
 
-Index2D TiledFloor::toIndex(Position2D position) const
+}
+
+
+Index2D TiledFloor::toIndex(const Position2D & position) const
 {
 	return toIndex(toTileIndex(position));
 }
 
-Index2D TiledFloor::toIndex(TilePosition2D position) const
+Index2D TiledFloor::toIndex(const TilePosition2D & position) const
 {
 	//Make sure the position is not out of bounds
 	TilePosition2D bounded = position.min(m_halfIndexSize).max(-m_halfIndexSize);
@@ -135,7 +140,7 @@ Index2D TiledFloor::toIndex(TilePosition2D position) const
 	return bounded - m_Base;
 }
 
-void TiledFloor::setColor(Index2D position, QColor color)
+void TiledFloor::setColor(const Index2D & position, const QColor & color)
 {
 	//Note that the Y axis is inverted
 	m_image.setPixelColor(
@@ -151,7 +156,7 @@ void TiledFloor::setColor(Index2D position, QColor color)
 	m_textureImage->dirty();
 }
 
-QColor TiledFloor::getColor(Index2D position)
+QColor TiledFloor::getColor(const Index2D & position)
 {
 	return m_image.pixelColor(
 				static_cast<int>(position.x()),

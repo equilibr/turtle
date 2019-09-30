@@ -33,7 +33,7 @@ namespace Turtle
 		osg::ref_ptr<osg::Node> root() {return m_root;}
 
 		//Set the clear color to use
-		void setClearColor(QColor color) {m_clearColor = color;}
+		void setClearColor(const QColor & color) {m_clearColor = color;}
 
 		//(re)create a floor
 		void reset(const Index2D & size, const Position2D & tileSize = {1,1});
@@ -42,21 +42,22 @@ namespace Turtle
 		void clear();
 
 		//Set a pixel color at a given position
-		void setColor(Position2D position, QColor color) {setColor(toIndex(position),color);}
-		void setColor(TilePosition2D position, QColor color) {setColor(toIndex(position),color);}
+		void setColor(const Position2D & position, const QColor & color) {setColor(toIndex(position),color);}
+		void setColor(const TilePosition2D & position, const QColor & color) {setColor(toIndex(position),color);}
 
 		//Get a pixel color at a given position
-		QColor getColor(Position2D position) {return getColor(toIndex(position));}
-		QColor getColor(TilePosition2D position) {return getColor(toIndex(position));}
+		QColor getColor(const Position2D & position) {return getColor(toIndex(position));}
+		QColor getColor(const TilePosition2D & position) {return getColor(toIndex(position));}
 
 		TileSensor getTiles(const TilePosition2D position, size_t size) const;
 
-		TilePosition2D toTileIndex(Position2D position) const;
+		TilePosition2D toTileIndex(const Position2D & position) const;
+		Position2D toPosition(const TilePosition2D & index) const;
 	private:
-		Index2D toIndex(Position2D position) const;
-		Index2D toIndex(TilePosition2D position) const;
-		void setColor(Index2D position, QColor color);
-		QColor getColor(Index2D position);
+		Index2D toIndex(const Position2D & position) const;
+		Index2D toIndex(const TilePosition2D & position) const;
+		void setColor(const Index2D & position, const QColor & color);
+		QColor getColor(const Index2D & position);
 		void createQuad();
 
 

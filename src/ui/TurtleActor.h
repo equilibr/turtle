@@ -63,7 +63,6 @@ namespace Turtle
 		struct State
 		{
 			Pen pen;
-			Pen touchPen;
 			Location current;
 			Location target;
 
