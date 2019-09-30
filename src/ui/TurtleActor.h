@@ -25,14 +25,12 @@ namespace Turtle
 			QColor color;
 			bool down;
 
-			Pen() : color{Qt::black}, down{false}, offset{{}} {}
+			Pen() : color{Qt::black}, down{false} {}
 			explicit Pen(
 					const QColor & color,
-					const bool down,
-					const TilePosition2D offset) :
+					const bool down) :
 				color{color},
-				down{down},
-				offset{offset}
+				down{down}
 			{}
 
 			bool operator==(const Pen & rhs) const { return (down == rhs.down) && (color == rhs.color);}

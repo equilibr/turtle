@@ -129,63 +129,27 @@ void TurtleActor::reset()
 
 void TurtleActor::setTarget(const Location &target)
 {
-	const Location final
-	{
-		m_world.edge(m_state.current.position, target.position, {radius,radius}),
-		normalizeAngle(target.angle)
-	};
-
-	m_internalState.pending = true;
-	m_state.target = final;
-	callback(CallbackType::Target);
 }
 
 void TurtleActor::move(const Position2D::value_type distance)
 {
-	m_state.relative.distance = distance;
-
-	Position2D delta
-	{
-		distance * cos(2*pi*m_state.current.angle),
-		distance * sin(2*pi*m_state.current.angle)
-	};
-
-	Location target {m_state.current.position + delta, m_state.current.angle};
-	setTarget(target);
-	callback(CallbackType::Move);
 }
 
 void TurtleActor::rotate(const double angle)
 {
-	m_state.relative.angle = angle;
-
-	Location target {m_state.current.position, m_state.current.angle + angle};
-	setTarget(target);
-	callback(CallbackType::Rotate);
 }
 
 void TurtleActor::setPen(const Pen &pen)
 {
-	m_internalState.pending = true;
-	m_state.pen = pen;
-	m_internalState.penDirty = true;
 }
 
 void TurtleActor::setTile(const QColor color,
 		const TilePosition2D offset, bool absolute)
 {
-	m_internalState.pending = true;
 }
 
 QColor TurtleActor::getTile(const TilePosition2D offset, bool absolute)
 {
-	TilePosition2D touchTile;
-	if (absolute)
-		touchTile = offset;
-	else
-		touchTile = m_state.tilePosition + positionToGlobal(offset);
-
-	return m_world.floor().getColor(touchTile);
 }
 
 double TurtleActor::normalizeAngle(double angle)
@@ -310,10 +274,10 @@ void TurtleActor::stepPen()
 		m_robot.setPenState(m_state.pen.down);
 	}
 
-	if (m_state.pen.down && (m_internalState.penDirty || (m_state.tilePosition != m_internalState.lastPenPosition)))
+	if (m_state.pen.down && (m_internalState.penDirty || (m_state.current.tile != m_internalState.lastPenPosition)))
 	{
-		m_internalState.lastPenPosition = m_state.tilePosition;
-		m_world.floor().setColor(m_state.tilePosition, m_state.pen.color);
+		m_internalState.lastPenPosition = m_state.current.tile;
+		m_world.floor().setColor(m_state.current.tile, m_state.pen.color);
 
 		//Set this so the next block will invoke the callback
 		m_internalState.penDirty = true;
@@ -341,7 +305,7 @@ void TurtleActor::updateState()
 void TurtleActor::updateTileSensor()
 {
 	//Get the tile data
-	const auto raw = m_world.floor().getTiles(m_state.tilePosition, tileSensorSize);
+	const auto raw = m_world.floor().getTiles(m_state.current.tile, tileSensorSize);
 
 	TileSensor::Data data;
 	for (int front = -tileSensorSize; front <= tileSensorSize; ++front)
@@ -367,13 +331,13 @@ void TurtleActor::updateHeading()
 	constexpr double quanta = 1.0 / 8;
 
 	if ((m_state.current.angle >= -quanta) && (m_state.current.angle <= quanta))
-		m_state.heading = Heading::PositiveX;
+		m_state.current.heading = Heading::PositiveX;
 	else if ((m_state.current.angle > quanta) && (m_state.current.angle < 3*quanta))
-		m_state.heading = Heading::PositiveY;
+		m_state.current.heading = Heading::PositiveY;
 	else if ((m_state.current.angle < -quanta) && (m_state.current.angle > -3*quanta))
-		m_state.heading = Heading::NegativeY;
+		m_state.current.heading = Heading::NegativeY;
 	else
-		m_state.heading = Heading::NegativeX;
+		m_state.current.heading = Heading::NegativeX;
 }
 
 void TurtleActor::updateCommandPosition()
@@ -440,7 +404,7 @@ TilePosition2D TurtleActor::positionToLocal(const TilePosition2D position) const
 	const auto front = position.x();
 	const auto side = position.y();
 
-	switch (m_state.heading)
+	switch (m_state.current.heading)
 	{
 		case Heading::PositiveX: return {-side,front};
 		case Heading::NegativeX: return {side,-front};
@@ -456,7 +420,7 @@ TilePosition2D TurtleActor::positionToGlobal(const TilePosition2D position) cons
 	const auto front = position.x();
 	const auto side = position.y();
 
-	switch (m_state.heading)
+	switch (m_state.current.heading)
 	{
 		case Heading::PositiveX: return {front, -side};
 		case Heading::NegativeX: return {-front, side};
