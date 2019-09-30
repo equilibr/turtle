@@ -24,7 +24,6 @@ namespace Turtle
 		{
 			QColor color;
 			bool down;
-			TilePosition2D offset;
 
 			Pen() : color{Qt::black}, down{false}, offset{{}} {}
 			explicit Pen(
@@ -43,7 +42,10 @@ namespace Turtle
 		struct Location
 		{
 			Position2D position;
+			TilePosition2D tile;
+
 			double angle;
+			Heading heading;
 
 			Location() : position{}, angle{} {}
 			explicit Location(const Position2D & position, const double angle) : position{position}, angle{angle} {}
@@ -67,8 +69,7 @@ namespace Turtle
 			Location target;
 
 			Relative relative;
-			TilePosition2D tilePosition;
-			Heading heading;
+
 		};
 
 		enum class CallbackType
@@ -97,7 +98,7 @@ namespace Turtle
 		//Will return false if the command will not be executed
 		bool command(Command & data);
 		bool commandGet(Command & data);
-		bool commandSet(Command & data);
+		void commandSet(Command & data);
 
 
 		//Access functors

@@ -64,34 +64,46 @@ bool TurtleActor::command(Command & data)
 		case Command::Turtle::Command::Get:
 			return commandGet(data);
 		case Command::Turtle::Command::Set:
-			return commandSet(data);
+			commandSet(data);
 	}
 
-	return false;
+	return true;
 }
 
 bool TurtleActor::commandGet(Command & data)
 {
+	commandData = data;
+	updateCommandPosition();
+
 	//Fill data that does not depends on the command
 	data.data.turtle.tileSensor = m_internalState.tileSensor;
 	data.data.turtle.penDown = m_state.pen.down;
 
-	//Get the current heading
+	Location & used =
+			(commandData.data.turtle.target == Command::Turtle::Target::Current)
+			? m_state.current
+			: m_state.target;
 
+	data.data.turtle.position = used.position;
+	data.data.turtle.tile = used.tile;
+	data.data.turtle.angle = used.angle;
+	data.data.turtle.heading = used.heading;
+
+	//Get the current heading
+	if (commandData.data.turtle.target == Command::Turtle::Target::Tile)
+		data.data.turtle.color = m_world.floor().getColor(commandData.data.turtle.tile);
+	else
+		data.data.turtle.color = m_state.pen.color;
 
 	data.valid = true;
 	return true;
 }
 
-bool TurtleActor::commandSet(Command & data)
+void TurtleActor::commandSet(Command & data)
 {
 	commandData = data;
-
-	//Analyze the command for errors and conditions and set the pending flag acordingly
-
-
-	m_internalState.pending |= commandData.valid;
-	return m_internalState.pending;
+	commandData.valid = true;
+	m_internalState.pending = true;
 }
 
 void TurtleActor::reset()
@@ -214,6 +226,7 @@ void TurtleActor::processSetCommand()
 		//The target is always set since "current" assumes the position
 		// will stay that way
 		m_state.target.position = commandData.data.turtle.position;
+		m_state.target.tile = m_world.floor().toTileIndex(m_state.target.position);
 	}
 
 	if (commandData.data.turtle.setHeading)
@@ -320,7 +333,7 @@ void TurtleActor::updateState()
 				osg::Matrix::translate(static_cast<osg::Vec3>(m_state.current.position))
 				);
 
-	m_state.tilePosition = m_world.floor().toTileIndex(m_state.current.position);
+	m_state.current.tile = m_world.floor().toTileIndex(m_state.current.position);
 	updateHeading();
 	updateTileSensor();
 }
