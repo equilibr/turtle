@@ -42,7 +42,7 @@ protected slots:
 	void stopped();
 
 private slots:
-	void newState(TurtleActor::State state, TurtleActor::CallbackType action);
+	void newCurrentState(const Command & data);
 
 	void on_actionLoad_triggered();
 	void on_actionSave_as_triggered();

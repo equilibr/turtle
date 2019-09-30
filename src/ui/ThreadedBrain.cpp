@@ -4,124 +4,203 @@
 
 #include "main.h"
 
+using namespace Turtle;
+
 int ThreadedBrain::getInteger(QString title, QString label, int input, bool * ok)
 {
-	return requestData(title, label, input, ok).toInt();
+	Command command;
+	command.valid = true;
+	command.destination = Command::Destination::UI;
+	command.data.ui.command = Command::UI::Command::GetInt;
+	command.data.ui.title = title;
+	command.data.ui.text = label;
+	command.data.ui.integer = input;
+	command.data.ui.min = -2147483647;
+	command.data.ui.max = 2147483647;
+	command.data.ui.step = 1;
+
+	command = sendCommand(command);
+	if (ok) *ok = command.valid;
+	return command.data.ui.integer;
 }
 
 double ThreadedBrain::getDouble(QString title, QString label, double input, bool * ok)
 {
-	return requestData(title, label, input, ok).toDouble();
+	Command command;
+	command.valid = true;
+	command.destination = Command::Destination::UI;
+	command.data.ui.command = Command::UI::Command::GetDouble;
+	command.data.ui.title = title;
+	command.data.ui.text = label;
+	command.data.ui.real = input;
+	command.data.ui.min = -2147483647;
+	command.data.ui.max = 2147483647;
+	command.data.ui.step = 0.1;
+
+	command = sendCommand(command);
+	if (ok) *ok = command.valid;
+	return command.data.ui.real;
 }
 
 QString ThreadedBrain::getString(QString title, QString label, QString input, bool * ok)
 {
-	return requestData(title, label, input, ok).toString();
+	Command command;
+	command.valid = true;
+	command.destination = Command::Destination::UI;
+	command.data.ui.command = Command::UI::Command::GetString;
+	command.data.ui.title = title;
+	command.data.ui.text = label;
+	command.data.ui.string = input;
+
+	command = sendCommand(command);
+	if (ok) *ok = command.valid;
+	return command.data.ui.string;
 }
 
 void ThreadedBrain::log(QString text)
 {
-	emit signalLog(text);
+	Command command;
+	command.valid = true;
+	command.destination = Command::Destination::UI;
+	command.data.ui.command = Command::UI::Command::Log;
+	command.data.ui.title = "";
+	command.data.ui.text = text;
+
+	sendCommand(command);
 }
 
 void ThreadedBrain::setTargetPosition(Turtle::Position2D target)
 {
-	emit signalTargetPosition(target);
-	waitForActive();
+	Command command;
+	command.valid = true;
+	command.destination = Command::Destination::Turtle;
+	command.data.turtle.command = Command::Turtle::Command::Set;
+	command.data.turtle.target = Command::Turtle::Target::Target;
+	command.data.turtle.absolute = true;
+	command.data.turtle.quantized = false;
+	command.data.turtle.setPosition = true;
+
+	command.data.turtle.position = target;
+
+	sendCommand(command);
 }
 
 void ThreadedBrain::setTargetAngle(double target)
 {
-	emit signalTargetAngle(target);
-	waitForActive();
-}
+	Command command;
+	command.valid = true;
+	command.destination = Command::Destination::Turtle;
+	command.data.turtle.command = Command::Turtle::Command::Set;
+	command.data.turtle.target = Command::Turtle::Target::Target;
+	command.data.turtle.absolute = true;
+	command.data.turtle.quantized = false;
+	command.data.turtle.setHeading = true;
 
-Turtle::TurtleActor::State ThreadedBrain::getCurrentState()
-{
-	emit signalGetCurrentState();
-	waitForActive();
-	return m_state;
+	command.data.turtle.angle = target;
+
+	sendCommand(command);
 }
 
 void ThreadedBrain::setPenColor(QColor color)
 {
-	emit signalPenColor(color);
-	waitForActive();
-}
+	Command command;
+	command.valid = true;
+	command.destination = Command::Destination::Turtle;
+	command.data.turtle.command = Command::Turtle::Command::Set;
+	command.data.turtle.target = Command::Turtle::Target::Target;
+	command.data.turtle.setPenColor = true;
 
-void ThreadedBrain::setPenColor(double red, double green, double blue)
-{
-	setPenColor(QColor::fromRgbF(red, green, blue));
-}
+	command.data.turtle.color = color;
 
-void ThreadedBrain::setPenColor(double hue, double saturation)
-{
-	setPenColor(QColor::fromHsvF(hue, saturation, 1.0));
+	sendCommand(command);
 }
 
 void ThreadedBrain::setPenDown(bool down)
 {
-	emit signalPenDown(down);
-	waitForActive();
+	Command command;
+	command.valid = true;
+	command.destination = Command::Destination::Turtle;
+	command.data.turtle.command = Command::Turtle::Command::Set;
+	command.data.turtle.target = Command::Turtle::Target::Target;
+	command.data.turtle.setPenState = true;
+
+	command.data.turtle.penDown = down;
+
+	sendCommand(command);
 }
 
 void ThreadedBrain::move(double distance)
 {
-	emit signalMove(distance);
-	waitForActive();
+	Command command;
+	command.valid = true;
+	command.destination = Command::Destination::Turtle;
+	command.data.turtle.command = Command::Turtle::Command::Set;
+	command.data.turtle.target = Command::Turtle::Target::Target;
+	command.data.turtle.absolute = false;
+	command.data.turtle.quantized = false;
+	command.data.turtle.setPosition = true;
+
+	command.data.turtle.position.x() = distance;
+
+	sendCommand(command);
 }
 
 void ThreadedBrain::rotate(double angle)
 {
-	emit signalRotate(angle);
-	waitForActive();
-}
+	Command command;
+	command.valid = true;
+	command.destination = Command::Destination::Turtle;
+	command.data.turtle.command = Command::Turtle::Command::Set;
+	command.data.turtle.target = Command::Turtle::Target::Target;
+	command.data.turtle.absolute = false;
+	command.data.turtle.quantized = false;
+	command.data.turtle.setHeading = true;
 
-void ThreadedBrain::setDirectionalTile(const QColor color, const Turtle::TilePosition2D offset)
-{
-	setTile(color, offset, false);
-}
+	command.data.turtle.angle = angle;
 
-QColor ThreadedBrain::getDirectionalTile(const Turtle::TilePosition2D offset)
-{
-	return getTile(offset, false);
-}
-
-void ThreadedBrain::setAbsoluteTile(const QColor color, const Turtle::TilePosition2D offset)
-{
-	setTile(color, offset, true);
-}
-
-QColor ThreadedBrain::getAbsoluteTile(const Turtle::TilePosition2D offset)
-{
-	return getTile(offset, true);
+	sendCommand(command);
 }
 
 void ThreadedBrain::setTile(const QColor color, const Turtle::TilePosition2D offset, bool absolute)
 {
-	emit signalSetTile(color, offset, absolute);
-	waitForActive();
+	Command command;
+	command.valid = true;
+	command.destination = Command::Destination::Turtle;
+	command.data.turtle.command = Command::Turtle::Command::Set;
+	command.data.turtle.target = Command::Turtle::Target::Tile;
+	command.data.turtle.absolute = absolute;
+	command.data.turtle.quantized = true;
+	command.data.turtle.tile = offset;
+	command.data.turtle.color = color;
+
+	sendCommand(command);
 }
 
 QColor ThreadedBrain::getTile(const Turtle::TilePosition2D offset, bool absolute)
 {
-	emit signalGetTile(offset, absolute);
-	waitForActive();
-	return m_tile;
+	Command command;
+	command.valid = true;
+	command.destination = Command::Destination::Turtle;
+	command.data.turtle.command = Command::Turtle::Command::Get;
+	command.data.turtle.target = Command::Turtle::Target::Tile;
+	command.data.turtle.absolute = absolute;
+	command.data.turtle.quantized = true;
+	command.data.turtle.tile = offset;
+
+	command = sendCommand(command);
+	return command.data.turtle.color;
 }
 
 Turtle::TileSensor ThreadedBrain::tileSensor()
 {
-	emit signalGetTileSensor();
-	waitForActive();
-	return m_tileSensor;
-}
+	Command command;
+	command.valid = true;
+	command.destination = Command::Destination::Turtle;
+	command.data.turtle.command = Command::Turtle::Command::Get;
+	command.data.turtle.target = Command::Turtle::Target::Current;
 
-Turtle::Command ThreadedBrain::sendCommand(const Turtle::Command & command)
-{
-	emit signalSendCommand(command);
-	waitForActive();
-	return commandData;
+	command = sendCommand(command);
+	return command.data.turtle.tileSensor;
 }
 
 void ThreadedBrain::start()
@@ -139,38 +218,17 @@ void ThreadedBrain::stop()
 	QMetaObject::invokeMethod(this, &ThreadedBrain::stopWaitingForActive, Qt::QueuedConnection);
 }
 
-void ThreadedBrain::newRunState(bool active)
+Turtle::Command ThreadedBrain::sendCommand(const Turtle::Command & command)
 {
-	if (active)
-		QMetaObject::invokeMethod(this, &ThreadedBrain::stopWaitingForActive, Qt::QueuedConnection);
-}
-
-void ThreadedBrain::newCurrentState(Turtle::TurtleActor::State state)
-{
-	m_state = state;
-	if (active)
-		QMetaObject::invokeMethod(this, &ThreadedBrain::stopWaitingForActive, Qt::QueuedConnection);
-}
-
-void ThreadedBrain::newTile(QColor color)
-{
-	m_tile = color;
-	if (active)
-		QMetaObject::invokeMethod(this, &ThreadedBrain::stopWaitingForActive, Qt::QueuedConnection);
-}
-
-void ThreadedBrain::newTileSensor(Turtle::TileSensor sensor)
-{
-	m_tileSensor = sensor;
-	if (active)
-		QMetaObject::invokeMethod(this, &ThreadedBrain::stopWaitingForActive, Qt::QueuedConnection);
+	emit signalSendCommand(command);
+	waitForActive();
+	return commandData;
 }
 
 void ThreadedBrain::commandReply(const Turtle::Command & data)
 {
 	commandData = data;
-	if (active)
-		QMetaObject::invokeMethod(this, &ThreadedBrain::commandDone, Qt::QueuedConnection);
+	QMetaObject::invokeMethod(this, [this]{idleEventLoop.quit();}, Qt::QueuedConnection);
 }
 
 void ThreadedBrain::run()
@@ -201,70 +259,6 @@ void ThreadedBrain::waitForActive()
 }
 
 void ThreadedBrain::stopWaitingForActive()
-{
-	idleEventLoop.quit();
-}
-
-QVariant ThreadedBrain::requestData(QString title, QString label, QVariant input, bool * ok)
-{
-	auto f = [this, title, label, input, ok]() -> QVariant
-	{ return requestDataWorker(title, label, input, ok); };
-
-	QVariant reply;
-	QMetaObject::invokeMethod(
-				controller,
-				f,
-				Qt::BlockingQueuedConnection,
-				&reply);
-
-	return reply;
-}
-
-QVariant ThreadedBrain::requestDataWorker(QString title, QString label, QVariant input, bool * ok)
-{
-	if (ok)
-		*ok = false;
-
-	//Dispatch the correct dialog according to the requested type
-	switch (input.type())
-	{
-		case QVariant::Int:
-			return QInputDialog::getInt(
-						nullptr,
-						title,
-						label,
-						input.toInt(),
-						-2147483647,
-						2147483647,
-						1,
-						ok);
-
-		case QVariant::Double:
-			return QInputDialog::getDouble(
-						nullptr,
-						title,
-						label,
-						input.toDouble(),
-						-2147483647,
-						2147483647,
-						1,
-						ok);
-
-		case QVariant::String:
-			return QInputDialog::getText(
-						nullptr,
-						title,
-						label,
-						QLineEdit::Normal,
-						input.toString(),
-						ok);
-
-		default:
-			return {};
-	}
-}
-
-void ThreadedBrain::commandDone()
 {
 	idleEventLoop.quit();
 }

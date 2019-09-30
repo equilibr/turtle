@@ -127,31 +127,6 @@ void TurtleActor::reset()
 	callback(CallbackType::Reset);
 }
 
-void TurtleActor::setTarget(const Location &target)
-{
-}
-
-void TurtleActor::move(const Position2D::value_type distance)
-{
-}
-
-void TurtleActor::rotate(const double angle)
-{
-}
-
-void TurtleActor::setPen(const Pen &pen)
-{
-}
-
-void TurtleActor::setTile(const QColor color,
-		const TilePosition2D offset, bool absolute)
-{
-}
-
-QColor TurtleActor::getTile(const TilePosition2D offset, bool absolute)
-{
-}
-
 double TurtleActor::normalizeAngle(double angle)
 {
 	return fmod(angle + 1.5, 1.0) - 0.5;
@@ -284,10 +259,7 @@ void TurtleActor::stepPen()
 	}
 
 	if (m_internalState.penDirty)
-	{
 		m_internalState.penDirty = false;
-		callback(CallbackType::Pen);
-	}
 }
 
 void TurtleActor::updateState()

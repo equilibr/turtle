@@ -6,8 +6,6 @@
 #include <QEventLoop>
 #include <QString>
 #include <QColor>
-#include <QVariant>
-#include <QPointer>
 
 #include "Types.h"
 #include "Command.h"
@@ -20,10 +18,7 @@ class ThreadedBrain : public QObject
 	Q_OBJECT
 
 public:
-	explicit ThreadedBrain(QPointer<QObject> controller, QObject * parent = nullptr) :
-		QObject(parent),
-		controller{controller}
-	{}
+	explicit ThreadedBrain(QObject * parent = nullptr) : QObject(parent) {}
 
 	explicit operator bool() const { return active.load() != 0; }
 	void setActive(bool value) { active.store(value ? 1 : 0);}
@@ -41,13 +36,14 @@ public:
 	//Directly set the target angle
 	void setTargetAngle(double target);
 
-	//Get the current state
-	Turtle::TurtleActor::State getCurrentState();
-
 	//Set the pen color
 	void setPenColor(QColor color = Qt::black);
-	void setPenColor(double red, double green, double blue);
-	void setPenColor(double hue, double saturation);
+
+	void setPenColor(double red, double green, double blue)
+	{ setPenColor(QColor::fromRgbF(red, green, blue)); }
+
+	void setPenColor(double hue, double saturation)
+	{ setPenColor(QColor::fromHsvF(hue, saturation, 1.0)); }
 
 	//Set the pen state
 	void setPenDown(bool down = true);
@@ -60,11 +56,17 @@ public:
 	void turnLeft() {rotate(0.25);}
 	void turnRight() {rotate(-0.25);}
 
-	void setDirectionalTile(const QColor color, const Turtle::TilePosition2D offset);
-	QColor getDirectionalTile(const Turtle::TilePosition2D offset);
+	void setDirectionalTile(const QColor color, const Turtle::TilePosition2D offset)
+	{ setTile(color, offset, false); }
 
-	void setAbsoluteTile(const QColor color, const Turtle::TilePosition2D offset);
-	QColor getAbsoluteTile(const Turtle::TilePosition2D offset);
+	QColor getDirectionalTile(const Turtle::TilePosition2D offset)
+	{ return getTile(offset, false); }
+
+	void setAbsoluteTile(const QColor color, const Turtle::TilePosition2D offset)
+	{ setTile(color, offset, true); }
+
+	QColor getAbsoluteTile(const Turtle::TilePosition2D offset)
+	{ return getTile(offset, true); }
 
 	void setTile(const QColor color, const Turtle::TilePosition2D offset, bool absolute = false);
 	QColor getTile(const Turtle::TilePosition2D offset, bool absolute = false);
@@ -72,41 +74,20 @@ public:
 	//Get the tile sensor
 	Turtle::TileSensor tileSensor();
 
-	//Send a command to the controller and return the result
-	//This function will block until the command is complete
-	Turtle::Command sendCommand(const Turtle::Command & command);
-
-
 signals:
 	void started();
 	void stopped();
-	void signalLog(QString text);
-
-	void signalGetCurrentState();
-	void signalTargetPosition(Turtle::Position2D target);
-	void signalTargetAngle(double target);
-	void signalPenColor(QColor color);
-	void signalPenDown(bool down);
-	void signalMove(Turtle::Position2D::value_type distance);
-	void signalRotate(const double angle) const;
-
-	void signalSetTile(const QColor color, const Turtle::TilePosition2D offset, bool absolute = false);
-	void signalGetTile(const Turtle::TilePosition2D offset, bool absolute = false);
-
-	void signalGetTileSensor();
 
 	//The signal mathing to sendCommand
 	void signalSendCommand(Turtle::Command command);
-
 
 public slots:
 	void start();
 	void stop();
 
-	void newRunState(bool active);
-	void newCurrentState(Turtle::TurtleActor::State state);
-	void newTile(QColor color);
-	void newTileSensor(Turtle::TileSensor sensor);
+	//Send a command to the controller and return the result
+	//This function will block until the command is complete
+	Turtle::Command sendCommand(const Turtle::Command & command);
 
 	//Should be called when the current command is done and it's data is ready
 	void commandReply(const Turtle::Command & data);
@@ -117,17 +98,6 @@ private slots:
 private:
 	void waitForActive();
 	void stopWaitingForActive();
-	QVariant requestData(QString title, QString label, QVariant input, bool * ok);
-	QVariant requestDataWorker(QString title, QString label, QVariant input, bool * ok);
-
-	//Internally called after the command reply is received and stored
-	//This will unblock the sendCommand function and ready the data
-	void commandDone();
-
-	QPointer<QObject> controller;
-	Turtle::TurtleActor::State m_state;
-	Turtle::TileSensor m_tileSensor;
-	QColor m_tile;
 
 	Turtle::Command commandData;
 

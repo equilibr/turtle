@@ -35,41 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
 		ui->splitterBottom->setSizes({2*heightQuanta,1*heightQuanta});
 	});
 
-	//UI to robot signals
-	//-------------------
-
-	connect(ui->penDown, &QCheckBox::clicked, actor, &TurtleActorController::setPenDown);
-
-	connect(ui->setX, &QDoubleSpinBox::editingFinished, [this]()
-	{ if (ui->setX->hasFocus()) actor->setTargetPositionX(ui->setX->value()); });
-
-	connect(ui->setY, &QDoubleSpinBox::editingFinished, [this]()
-	{ if (ui->setY->hasFocus()) actor->setTargetPositionY(ui->setY->value()); });
-
-	connect(ui->setAngle, &QDoubleSpinBox::editingFinished, [this]()
-	{ if (ui->setAngle->hasFocus()) actor->setTargetAngle(ui->setAngle->value()); });
-
-
-	connect(ui->relativeDistance, &QDoubleSpinBox::editingFinished, [this]()
-	{ if (ui->relativeDistance->hasFocus()) actor->setMove(ui->relativeDistance->value()); });
-
-	connect(ui->relativeAngle, &QDoubleSpinBox::editingFinished, [this]()
-	{ if (ui->relativeAngle->hasFocus()) actor->setRotate(ui->relativeAngle->value()); });
-
-	auto setColor = [this]()
-	{
-		actor->setPenColor(
-					QColor::fromRgbF(
-						ui->red->value(),
-						ui->green->value(),
-						ui->blue->value()));
-	};
-
-	connect(ui->red, &QDoubleSpinBox::editingFinished, setColor);
-	connect(ui->green, &QDoubleSpinBox::editingFinished, setColor);
-	connect(ui->blue, &QDoubleSpinBox::editingFinished, setColor);
-
-	connect(ui->selectColor, &QPushButton::clicked, [this, setColor]()
+	connect(ui->selectColor, &QPushButton::clicked, [this]()
 	{
 		QColor color(QColor::fromRgbF(
 						 ui->red->value(),
@@ -83,7 +49,6 @@ MainWindow::MainWindow(QWidget *parent) :
 		ui->red->setValue(color.redF());
 		ui->green->setValue(color.greenF());
 		ui->blue->setValue(color.blueF());
-		setColor();
 	});
 
 	connect(ui->singleStep, &QCheckBox::toggled, actor, &TurtleActorController::setSingleStep);
@@ -93,7 +58,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	//Robot to UI signals
 	//-------------------
-	connect(actor, &TurtleActorController::newState, this, &MainWindow::newState);
+	connect(actor, &TurtleActorController::log, ui->log, &QTextBrowser::append);
+	connect(actor, &TurtleActorController::newCurrentState, this, &MainWindow::newCurrentState);
 	connect(actor, &TurtleActorController::newRunState,
 			[this](bool active) {ui->Continue->setEnabled(!active);});
 
@@ -110,7 +76,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	//-------------------
 	connect(brain, &ThreadedBrainController::started, this, &MainWindow::started);
 	connect(brain, &ThreadedBrainController::stopped, this, &MainWindow::stopped);
-	connect(brain, &ThreadedBrainController::log, ui->log, &QTextBrowser::append);
+
 
 	//Initialization
 	//--------------
@@ -202,48 +168,25 @@ void MainWindow::stopped()
 	ui->stop->setEnabled(false);
 }
 
-void MainWindow::newState(TurtleActor::State state, TurtleActor::CallbackType action)
+void MainWindow::newCurrentState(const Command & data)
 {
-	ui->penDown->setChecked(state.pen.down);
-	ui->red->setValue(state.pen.color.redF());
-	ui->green->setValue(state.pen.color.greenF());
-	ui->blue->setValue(state.pen.color.blueF());
-
-	ui->currentX->setValue(state.current.position.x());
-	ui->currentY->setValue(state.current.position.y());
-	ui->currentAngle->setValue(state.current.angle);
-
-	ui->setX->setValue(state.target.position.x());
-	ui->setY->setValue(state.target.position.y());
-	ui->setAngle->setValue(state.target.angle);
-
-	ui->relativeDistance->setValue(state.relative.distance);
-	ui->relativeAngle->setValue(state.relative.angle);
-
-	if (!logrobot())
+	if (!data.valid)
 		return;
+	if (data.destination != Command::Destination::Turtle)
+		return;
+	if (data.data.turtle.command != Command::Turtle::Command::Get)
+		return;
+	if (data.data.turtle.target != Command::Turtle::Target::Current)
+		return
 
-	switch (action)
-	{
-		case TurtleActor::CallbackType::Pen:
-			ui->log->append(
-						QString("<i>Pen %1, Red %2, Green %3, Blue %4</i>")
-						.arg(state.pen.down ? "down" : "up")
-						.arg(state.pen.color.redF())
-						.arg(state.pen.color.greenF())
-						.arg(state.pen.color.blueF()));
-			break;
+	ui->penDown->setChecked(data.data.turtle.penDown);
+	ui->red->setValue(data.data.turtle.color.redF());
+	ui->green->setValue(data.data.turtle.color.greenF());
+	ui->blue->setValue(data.data.turtle.color.blueF());
 
-		case TurtleActor::CallbackType::Move:
-			ui->log->append(QString("<i>Set distance: %1</i>").arg(state.relative.distance));
-			break;
-
-		case TurtleActor::CallbackType::Rotate:
-			ui->log->append(QString("<i>Set rotation: %1</i>").arg(state.relative.angle));
-			break;
-
-		default: ;
-	}
+	ui->currentX->setValue(data.data.turtle.position.x());
+	ui->currentY->setValue(data.data.turtle.position.y());
+	ui->currentAngle->setValue(data.data.turtle.angle);
 }
 
 void MainWindow::on_actionLoad_triggered()
@@ -374,7 +317,6 @@ bool MainWindow::logrobot()
 {
 	return ui->actionLog_robot->isChecked();
 }
-
 
 void MainWindow::on_actionClear_field_triggered()
 {

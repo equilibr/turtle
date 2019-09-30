@@ -24,85 +24,15 @@ void TurtleActorController::continueSingleStep()
 	actor.unpause();
 }
 
-void TurtleActorController::setTargetPosition(Position2D target) const
-{
-	TurtleActor::Location location = actor.state().target;
-	location.position = target;
-	actor.setTarget(location);
-}
-
-void TurtleActorController::setTargetPositionX(Position2D::value_type target) const
-{
-	TurtleActor::Location location = actor.state().target;
-	location.position.x() = target;
-	actor.setTarget(location);
-}
-
-void TurtleActorController::setTargetPositionY(Position2D::value_type target) const
-{
-	TurtleActor::Location location = actor.state().target;
-	location.position.y() = target;
-	actor.setTarget(location);
-}
-
-void TurtleActorController::getCurrentState()
-{
-	emit newCurrentState(actor.state());
-}
-
-void TurtleActorController::setTargetAngle(double target) const
-{
-	TurtleActor::Location location = actor.state().target;
-	location.angle = target;
-	actor.setTarget(location);
-}
-
-void TurtleActorController::setPenColor(QColor color) const
-{
-	TurtleActor::Pen pen = actor.state().pen;
-	pen.color = color;
-	actor.setPen(pen);
-}
-
-void TurtleActorController::setPenDown(bool down) const
-{
-	TurtleActor::Pen pen = actor.state().pen;
-	pen.down = down;
-	actor.setPen(pen);
-}
-
-void TurtleActorController::setMove(Position2D::value_type distance) const
-{
-	actor.move(distance);
-}
-
-void TurtleActorController::setRotate(const double angle) const
-{
-	actor.rotate(angle);
-}
-
-void TurtleActorController::setTile(const QColor color, const TilePosition2D offset, bool absolute)
-{
-	actor.setTile(color, offset, absolute);
-}
-
-void TurtleActorController::getTile(const TilePosition2D offset, bool absolute)
-{
-	emit newTile(actor.getTile(offset, absolute));
-}
-
-void TurtleActorController::getTileSensor()
-{
-	emit newTileSensor(actor.tileSensor());
-}
-
 void TurtleActorController::command(const Command & data)
 {
+	emit signalCommand(data);
+
 	commandData = data;
 	commandData.reply = true;
 	commandData.valid = false;
 
-	switch (data.destination)
+	switch (commandData.destination)
 	{
 		case Command::Destination::UI:
 			commandUI(commandData);
@@ -111,7 +41,7 @@ void TurtleActorController::command(const Command & data)
 
 		case Command::Destination::Turtle:
 			const bool ok = actor.command(commandData);
-			if (!ok || (data.data.turtle.command == Command::Turtle::Command::Get))
+			if (!ok || (commandData.data.turtle.command == Command::Turtle::Command::Get))
 				emit commandReply(commandData);
 			else
 				//Set as valid since the command was accepted an it will
@@ -127,8 +57,8 @@ void TurtleActorController::commandUI(Command & data)
 	{
 		case Command::UI::Command::Log:
 			emit log(
-						data.data.ui.title,
 						data.data.ui.text,
+						data.data.ui.title,
 						data.data.ui.level);
 
 			data.valid = true;
@@ -175,6 +105,14 @@ void TurtleActorController::commandUI(Command & data)
 
 void TurtleActorController::callback(TurtleActor::CallbackType type)
 {
+	//Get the current state
+	Command stateCommand;
+	stateCommand.valid = true;
+	stateCommand.destination = Command::Destination::Turtle;
+	stateCommand.data.turtle.command = Command::Turtle::Command::Get;
+	stateCommand.data.turtle.target = Command::Turtle::Target::Current;
+	actor.command(stateCommand);
+
 	switch (type)
 	{
 		case TurtleActor::CallbackType::Reset:
@@ -184,7 +122,10 @@ void TurtleActorController::callback(TurtleActor::CallbackType type)
 			//Restore the remembered pause mode
 			actor.pause(pause);
 
-			emit newState(actor.state(), TurtleActor::CallbackType::Reset);
+			emit newCurrentState(stateCommand);
+
+			//Make sure any waiters are unblocked
+			emit commandReply({});
 			break;
 
 		case TurtleActor::CallbackType::Active:
@@ -197,11 +138,7 @@ void TurtleActorController::callback(TurtleActor::CallbackType type)
 			break;
 
 		case TurtleActor::CallbackType::Current:
-		case TurtleActor::CallbackType::Target:
-		case TurtleActor::CallbackType::Pen:
-		case TurtleActor::CallbackType::Move:
-		case TurtleActor::CallbackType::Rotate:
-			emit newState(actor.state(), type);
+			emit newCurrentState(stateCommand);
 			break;
 	}
 }

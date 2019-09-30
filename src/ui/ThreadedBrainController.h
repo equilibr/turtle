@@ -27,7 +27,6 @@ public:
 signals:
 	void started();
 	void stopped();
-	void log(QString text);
 
 public slots:
 	void start();
