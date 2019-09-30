@@ -15,7 +15,6 @@ TurtleActor::TurtleActor(World &world) :
 	m_root{new osg::MatrixTransform}
 {
 	m_root->addChild(m_robot.root());
-
 	reset();
 }
 
@@ -67,13 +66,45 @@ bool TurtleActor::operator()(int steps)
 	return true;
 }
 
+bool TurtleActor::command(Command & data)
+{
+	switch (data.data.turtle.command)
+	{
+		case Command::Turtle::Command::Get:
+			return commandGet(data);
+		case Command::Turtle::Command::Set:
+			return commandSet(data);
+	}
+
+	return false;
+}
+
+bool TurtleActor::commandGet(Command & data)
+{
+	//Fill data that does not depends on the command
+	data.data.turtle.tileSensor = m_internalState.tileSensor;
+	data.data.turtle.penDown = m_state.pen.down;
+
+	//Get the current heading
+
+
+	data.valid = true;
+	return true;
+}
+
+bool TurtleActor::commandSet(Command & data)
+{
+	commandData = data;
+
+	//Analyze the command for error and conditions and set the pending flag acordingly
+
+
+	return m_internalState.pending;
+}
+
 void TurtleActor::reset()
 {
 	m_state = {};
-
-	m_internalState.linearSpeed = 1.0;
-	m_internalState.rotationSpeed = 0.05;
-	m_internalState.cycleSpeed = 25.0;
 
 	m_internalState.colorCycle = 0;
 
@@ -263,13 +294,13 @@ void TurtleActor::stepTileSensor()
 	const auto raw = m_world.floor().getTiles(m_state.tilePosition, tileSensorSize);
 
 	//Axis-centered direction
-	const Direction direction = currentDirection();
+	const auto direction = currentDirection();
 
 	TileSensor::Data data;
 	for (int front = -tileSensorSize; front <= tileSensorSize; ++front)
 		for (int side = -tileSensorSize; side <= tileSensorSize; ++side)
 		{
-			const QColor color = raw.get(positionToLocal({front, side}, direction));
+			const auto color = raw.get(positionToLocal({front, side}, direction));
 
 			data.push_back(color);
 
@@ -300,8 +331,8 @@ TurtleActor::Direction TurtleActor::currentDirection()
 
 TilePosition2D TurtleActor::positionToLocal(TilePosition2D position, TurtleActor::Direction direction)
 {
-	const TilePosition2D::value_type front = position.x();
-	const TilePosition2D::value_type side = position.y();
+	const auto front = position.x();
+	const auto side = position.y();
 
 	switch (direction)
 	{
@@ -316,8 +347,8 @@ TilePosition2D TurtleActor::positionToLocal(TilePosition2D position, TurtleActor
 
 TilePosition2D TurtleActor::positionToGlobal(TilePosition2D position, TurtleActor::Direction direction)
 {
-	const TilePosition2D::value_type front = position.x();
-	const TilePosition2D::value_type side = position.y();
+	const auto front = position.x();
+	const auto side = position.y();
 
 	switch (direction)
 	{

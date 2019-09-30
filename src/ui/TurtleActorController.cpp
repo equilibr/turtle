@@ -1,5 +1,7 @@
 #include "TurtleActorController.h"
 
+#include <QInputDialog>
+
 TurtleActorController::TurtleActorController(
 		TurtleActor &actor,
 		QObject *parent) :
@@ -96,11 +98,75 @@ void TurtleActorController::getTileSensor()
 
 void TurtleActorController::command(const Command & data)
 {
-	Command reply = data;
-	reply.reply = true;
-	reply.valid = false;
+	commandData = data;
+	commandData.reply = true;
+	commandData.valid = false;
 
-	emit commandReply(reply);
+	switch (data.destination)
+	{
+		case Command::Destination::UI:
+			commandUI(commandData);
+			emit commandReply(commandData);
+			break;
+
+		case Command::Destination::Turtle:
+			const bool ok = actor.command(commandData);
+			if (!ok || (data.data.turtle.command == Command::Turtle::Command::Get))
+				emit commandReply(commandData);
+			break;
+	}
+}
+
+void TurtleActorController::commandUI(Command & data)
+{
+	switch (data.data.ui.command)
+	{
+		case Command::UI::Command::Log:
+			emit log(
+						data.data.ui.title,
+						data.data.ui.text,
+						data.data.ui.level);
+
+			data.valid = true;
+			return;
+
+		case Command::UI::Command::GetInt:
+			data.data.ui.integer =
+					QInputDialog::getInt(
+						nullptr,
+						data.data.ui.title,
+						data.data.ui.text,
+						data.data.ui.integer,
+						static_cast<int>(data.data.ui.min),
+						static_cast<int>(data.data.ui.max),
+						static_cast<int>(data.data.ui.step),
+						&data.valid);
+			return;
+
+		case Command::UI::Command::GetDouble:
+			data.data.ui.real =
+					QInputDialog::getDouble(
+						nullptr,
+						data.data.ui.title,
+						data.data.ui.text,
+						data.data.ui.real,
+						data.data.ui.min,
+						data.data.ui.max,
+						static_cast<int>(data.data.ui.step),
+						&data.valid);
+			return;
+
+		case Command::UI::Command::GetString:
+			data.data.ui.string =
+					QInputDialog::getText(
+						nullptr,
+						data.data.ui.title,
+						data.data.ui.text,
+						QLineEdit::Normal,
+						data.data.ui.string,
+						&data.valid);
+			return;
+	}
 }
 
 void TurtleActorController::callback(TurtleActor::CallbackType type)
@@ -119,6 +185,7 @@ void TurtleActorController::callback(TurtleActor::CallbackType type)
 
 		case TurtleActor::CallbackType::Active:
 			emit newRunState(true);
+			emit commandReply(commandData);
 			break;
 
 		case TurtleActor::CallbackType::Paused:

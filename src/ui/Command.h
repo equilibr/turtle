@@ -2,6 +2,7 @@
 #define COMMAND_H
 
 #include "Types.h"
+#include "TileSensor.h"
 
 #include <QVariant>
 
@@ -13,66 +14,69 @@ namespace Turtle
 		{
 			enum class Command
 			{
-				None,
 				Log,
 				GetInt,
 				GetDouble,
 				GetString,
-			} command = Command::None;
+			} command;
 
-			struct
-			{
-				//Used for log prefixes and request dialog titles.
-				QString title;
+			//Used for log prefixes and request dialog titles.
+			QString title;
 
-				//User for log text and request dialog text
-				QString text;
+			//User for log text and request dialog text
+			QString text;
 
-				//To set the log level
-				int level;
-			} data;
+			//To set the log level
+			int level;
 
-			//The data returned from the request dialog
-			struct
-			{
-				QString string;
-				int integer;
-				double real;
-			} reply;
+			//Default initial values and returned values for the request dialogs
+
+			QString string;
+			int integer;
+			double real;
+
+			double min, max, step;
 		};
 
 		struct Turtle
 		{
 			enum class Command
 			{
-				CurrentPosition,
-				CurrentHeading,
-				TargetPosition,
-				TargetHeading,
+				//Retrieve all available data
+				Get,
 
-				PenColor,
-				PenState,
-
-				Tile,
-				TileSensor, //Get only
-
+				//Set some data
+				Set
 			} command;
 
-			//Set when this is a "set" command, cleared when this is a "get" command
-			bool set;
+			//Selects the target for the command
+			enum class Target
+			{
+				//The color is the pen color
+				Current,
+				Target,
+
+				//The color is the tile color
+				Tile,
+			} target;
+
+			//Select what to set
+			//The pen is set for the current and target items
+			bool setPosition;
+			bool setHeading;
+			bool setPenColor;
+			bool setPenState;
 
 			//For positions. set when the the tiled position should be used instead of the normal one
 			//For heading, set when the Direction/Heading should be used instead of the angle
 			bool quantized;
 
-			//Set when the absolute reference frame should be used
+			//When set the absolute reference frame should be used
+			//When clear the current-heading reference frame should be used
 			bool absolute;
 
 
 			//The following are used for both command data and replies
-
-			//A generic boolean state
-			bool state;
 
 			//Continous position
 			Position2D position;
@@ -82,6 +86,10 @@ namespace Turtle
 
 			//Pen/tile colour
 			QColor color;
+
+			//Pen state
+			bool penDown;
+
 
 			//Angle, in units of "circle". The positive direction is counter-clockwise.
 			double angle;
@@ -105,19 +113,13 @@ namespace Turtle
 			//Absolute heading
 			enum class Heading
 			{
-				None,
-
-				pX,
-				nX,
-				pY,
-				nY,
-
-				pXpY,
-				pXnY,
-				nXpY,
-				nXnY,
+				PositiveX,
+				NegativeX,
+				PositiveY,
+				NegativeY
 			} heading;
 
+			TileSensor tileSensor;
 		};
 
 		//Top level command destination

@@ -11,6 +11,7 @@
 #include "Actor.h"
 #include "Robot.h"
 #include "TileSensor.h"
+#include "Command.h"
 
 namespace Turtle
 {
@@ -92,6 +93,12 @@ namespace Turtle
 
 		bool operator()(int steps = 1) override;
 
+		//Try to execute the command
+		//Will return false if the command will not be executed
+		bool command(Command & data);
+		bool commandGet(Command & data);
+		bool commandSet(Command & data);
+
 
 		//Access functors
 		//---------------
@@ -153,9 +160,9 @@ namespace Turtle
 		struct InternalState
 		{
 			//Speed, in units/step
-			double linearSpeed;
-			double rotationSpeed;
-			double cycleSpeed;
+			double linearSpeed = 1.0;
+			double rotationSpeed = 0.05;
+			double cycleSpeed = 25.0;
 
 			double colorCycle;
 
@@ -192,6 +199,8 @@ namespace Turtle
 		InternalState m_internalState;
 
 		QImage m_tileSensor;
+
+		Command commandData;
 
 	private:
 		//Axis-centered direction

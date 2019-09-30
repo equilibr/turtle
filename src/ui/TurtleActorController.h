@@ -35,6 +35,8 @@ signals:
 	//Emmited when a new command reply is available
 	void commandReply(Turtle::Command data);
 
+	void log(QString title, QString text, int level);
+
 public slots:
 	void reset() { actor.reset(); }
 
@@ -72,12 +74,15 @@ public slots:
 	void getTileSensor();
 
 	void command(const Command & data);
+	void commandUI(Command & data);
 
 private:
 	void callback(TurtleActor::CallbackType type);
 
 	TurtleActor & actor;
 	bool pause;
+
+	Command commandData;
 };
 
 #endif // TURTLEACTORCONTROLLER_H
