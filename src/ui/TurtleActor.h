@@ -71,8 +71,8 @@ namespace Turtle
 		//Try to execute the command
 		//Will return false if the command will not be executed
 		bool command(Command & data);
-		bool commandGet(Command & data);
-		void commandSet(Command & data);
+		bool commandGet(Command & data) const;
+		void commandSet(const Command & data);
 
 
 		//Access functors
@@ -155,7 +155,7 @@ namespace Turtle
 
 		void updateHeading();
 
-		void updateCommandPosition();
+		void updateCommandPosition(Command::Turtle & data) const;
 
 		//Given a position in global coordinates transform it to a position in local coordinates
 		TilePosition2D positionToLocal(TilePosition2D position) const;

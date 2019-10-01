@@ -49,8 +49,8 @@ namespace Turtle
 		void setColor(const TilePosition2D & position, const QColor & color) {setColor(toIndex(position),color);}
 
 		//Get a pixel color at a given position
-		QColor getColor(const Position2D & position) {return getColor(toIndex(position));}
-		QColor getColor(const TilePosition2D & position) {return getColor(toIndex(position));}
+		QColor getColor(const Position2D & position) const {return getColor(toIndex(position));}
+		QColor getColor(const TilePosition2D & position) const {return getColor(toIndex(position));}
 
 		TileSensor getTiles(const TilePosition2D position, size_t size) const;
 
@@ -60,7 +60,7 @@ namespace Turtle
 		Index2D toIndex(const Position2D & position) const;
 		Index2D toIndex(const TilePosition2D & position) const;
 		void setColor(const Index2D & position, const QColor & color);
-		QColor getColor(const Index2D & position);
+		QColor getColor(const Index2D & position) const;
 		void createQuad();
 
 

@@ -161,7 +161,7 @@ void TiledFloor::setColor(const Index2D & position, const QColor & color)
 	m_textureImage->dirty();
 }
 
-QColor TiledFloor::getColor(const Index2D & position)
+QColor TiledFloor::getColor(const Index2D & position) const
 {
 	return m_image.pixelColor(
 				static_cast<int>(position.x()),

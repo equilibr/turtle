@@ -8,7 +8,7 @@ using namespace Turtle;
 
 int ThreadedBrain::getInteger(QString title, QString label, int input, bool * ok)
 {
-	Command command;
+	Command command {};
 	command.valid = true;
 	command.destination = Command::Destination::UI;
 	command.data.ui.command = Command::UI::Command::GetInt;
@@ -26,7 +26,7 @@ int ThreadedBrain::getInteger(QString title, QString label, int input, bool * ok
 
 double ThreadedBrain::getDouble(QString title, QString label, double input, bool * ok)
 {
-	Command command;
+	Command command {};
 	command.valid = true;
 	command.destination = Command::Destination::UI;
 	command.data.ui.command = Command::UI::Command::GetDouble;
@@ -44,7 +44,7 @@ double ThreadedBrain::getDouble(QString title, QString label, double input, bool
 
 QString ThreadedBrain::getString(QString title, QString label, QString input, bool * ok)
 {
-	Command command;
+	Command command {};
 	command.valid = true;
 	command.destination = Command::Destination::UI;
 	command.data.ui.command = Command::UI::Command::GetString;
@@ -59,11 +59,10 @@ QString ThreadedBrain::getString(QString title, QString label, QString input, bo
 
 void ThreadedBrain::log(QString text)
 {
-	Command command;
+	Command command {};
 	command.valid = true;
 	command.destination = Command::Destination::UI;
 	command.data.ui.command = Command::UI::Command::Log;
-	command.data.ui.title = "";
 	command.data.ui.text = text;
 
 	sendCommand(command);
@@ -71,7 +70,7 @@ void ThreadedBrain::log(QString text)
 
 void ThreadedBrain::setTargetPosition(Turtle::Position2D target)
 {
-	Command command;
+	Command command {};
 	command.valid = true;
 	command.destination = Command::Destination::Turtle;
 	command.data.turtle.command = Command::Turtle::Command::Set;
@@ -87,7 +86,7 @@ void ThreadedBrain::setTargetPosition(Turtle::Position2D target)
 
 void ThreadedBrain::setTargetAngle(double target)
 {
-	Command command;
+	Command command {};
 	command.valid = true;
 	command.destination = Command::Destination::Turtle;
 	command.data.turtle.command = Command::Turtle::Command::Set;
@@ -103,7 +102,7 @@ void ThreadedBrain::setTargetAngle(double target)
 
 void ThreadedBrain::setPenColor(QColor color)
 {
-	Command command;
+	Command command {};
 	command.valid = true;
 	command.destination = Command::Destination::Turtle;
 	command.data.turtle.command = Command::Turtle::Command::Set;
@@ -117,7 +116,7 @@ void ThreadedBrain::setPenColor(QColor color)
 
 void ThreadedBrain::setPenDown(bool down)
 {
-	Command command;
+	Command command {};
 	command.valid = true;
 	command.destination = Command::Destination::Turtle;
 	command.data.turtle.command = Command::Turtle::Command::Set;
@@ -131,7 +130,7 @@ void ThreadedBrain::setPenDown(bool down)
 
 void ThreadedBrain::move(double distance)
 {
-	Command command;
+	Command command {};
 	command.valid = true;
 	command.destination = Command::Destination::Turtle;
 	command.data.turtle.command = Command::Turtle::Command::Set;
@@ -147,7 +146,7 @@ void ThreadedBrain::move(double distance)
 
 void ThreadedBrain::rotate(double angle)
 {
-	Command command;
+	Command command {};
 	command.valid = true;
 	command.destination = Command::Destination::Turtle;
 	command.data.turtle.command = Command::Turtle::Command::Set;
@@ -163,7 +162,7 @@ void ThreadedBrain::rotate(double angle)
 
 void ThreadedBrain::setTile(const QColor color, const Turtle::TilePosition2D offset, bool absolute)
 {
-	Command command;
+	Command command {};
 	command.valid = true;
 	command.destination = Command::Destination::Turtle;
 	command.data.turtle.command = Command::Turtle::Command::Set;
@@ -178,7 +177,7 @@ void ThreadedBrain::setTile(const QColor color, const Turtle::TilePosition2D off
 
 QColor ThreadedBrain::getTile(const Turtle::TilePosition2D offset, bool absolute)
 {
-	Command command;
+	Command command {};
 	command.valid = true;
 	command.destination = Command::Destination::Turtle;
 	command.data.turtle.command = Command::Turtle::Command::Get;
@@ -193,7 +192,7 @@ QColor ThreadedBrain::getTile(const Turtle::TilePosition2D offset, bool absolute
 
 Turtle::TileSensor ThreadedBrain::tileSensor()
 {
-	Command command;
+	Command command {};
 	command.valid = true;
 	command.destination = Command::Destination::Turtle;
 	command.data.turtle.command = Command::Turtle::Command::Get;

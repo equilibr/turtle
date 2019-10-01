@@ -26,6 +26,12 @@ void TurtleActorController::continueSingleStep()
 
 void TurtleActorController::command(const Command & data)
 {
+	if (!data.valid)
+		return;
+
+	if (data.reply)
+		return;
+
 	emit signalCommand(data);
 
 	commandData = data;
@@ -41,6 +47,7 @@ void TurtleActorController::command(const Command & data)
 
 		case Command::Destination::Turtle:
 			const bool ok = actor.command(commandData);
+			commandData.reply = true;
 			if (!ok || (commandData.data.turtle.command == Command::Turtle::Command::Get))
 				emit commandReply(commandData);
 			else
@@ -106,12 +113,13 @@ void TurtleActorController::commandUI(Command & data)
 void TurtleActorController::callback(TurtleActor::CallbackType type)
 {
 	//Get the current state
-	Command stateCommand;
+	Command stateCommand {};
 	stateCommand.valid = true;
 	stateCommand.destination = Command::Destination::Turtle;
 	stateCommand.data.turtle.command = Command::Turtle::Command::Get;
 	stateCommand.data.turtle.target = Command::Turtle::Target::Current;
-	actor.command(stateCommand);
+	actor.commandGet(stateCommand);
+	stateCommand.reply = true;
 
 	switch (type)
 	{
@@ -125,7 +133,7 @@ void TurtleActorController::callback(TurtleActor::CallbackType type)
 			emit newCurrentState(stateCommand);
 
 			//Make sure any waiters are unblocked
-			emit commandReply({});
+			emit commandReply(stateCommand);
 			break;
 
 		case TurtleActor::CallbackType::Active:
