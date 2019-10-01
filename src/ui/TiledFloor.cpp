@@ -128,7 +128,7 @@ TilePosition2D TiledFloor::toTileIndex(const Position2D & position) const
 
 Position2D TiledFloor::toPosition(const TilePosition2D & index) const
 {
-
+	return m_tileSize * index.min(m_halfIndexSize).max(-m_halfIndexSize);
 }
 
 
