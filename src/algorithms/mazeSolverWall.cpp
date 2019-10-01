@@ -1,3 +1,13 @@
+/*
+   Maze solving algorithm used the right-hand wall rule.
+   It expects a field where the each path and wall are 1 pixel wide.
+   The walls are white, and the paths are black.
+   The bottom row should contain a black pixel - start of the maze.
+   The top row should containt a black pixel - end of the maze.
+
+   The algorithm colors each passed pixel.
+*/
+
 #include "utility.h"
 
 #include <array>
@@ -41,6 +51,12 @@ void MazeSolverWall(ThreadedBrain &brain)
 		Qt::red
 	};
 
+	const bool drawColors =
+			brain.getInteger(
+				"Coloring mode",
+				"0: No color\n1: Color",
+				1);
+
 	//Find the top right corner to know where
 	// the maze ends.
 	Turtle::Position2D positionTopRight {1000,1000};
@@ -76,7 +92,8 @@ void MazeSolverWall(ThreadedBrain &brain)
 	}
 
 	brain.turnLeft();
-	brain.setDirectionalTile(Qt::red, {0,0});
+	if (drawColors)
+		brain.setDirectionalTile(Qt::red, {0,0});
 	//At this point we're at the maze entrance, looking into the maze
 
 	//Solve the maze using the right hand rule
@@ -92,22 +109,26 @@ void MazeSolverWall(ThreadedBrain &brain)
 
 		if (brain.getCurrentPosition().y() >= positionTopRight.y())
 		{
-			brain.setDirectionalTile(Qt::green, {0,0});
+			if (drawColors)
+				brain.setDirectionalTile(Qt::green, {0,0});
 			brain.log("<font color=\"green\">Reached end of maze!</font>");
 			break;
 		}
 
-		if (isSensorColor(brain, {0,0}, Qt::red))
+		if (drawColors)
 		{
-			brain.log("<font color=\"red\">Looping!</font>");
-			break;
-		}
-
-		for (size_t i = 0; i < colors.size()-1; ++i)
-			if (isSensorColor(brain, {0,0}, colors[i]))
+			if (isSensorColor(brain, {0,0}, Qt::red))
 			{
-				brain.setDirectionalTile(colors[i+1], {0,0});
+				brain.log("<font color=\"red\">Looping!</font>");
 				break;
 			}
+
+			for (size_t i = 0; i < colors.size()-1; ++i)
+				if (isSensorColor(brain, {0,0}, colors[i]))
+				{
+					brain.setDirectionalTile(colors[i+1], {0,0});
+					break;
+				}
+		}
 	}
 }
