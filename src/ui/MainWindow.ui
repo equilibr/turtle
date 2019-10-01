@@ -43,6 +43,9 @@
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="QGroupBox" name="groupBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="title">
          <string>Absolute</string>
         </property>
@@ -73,7 +76,7 @@
          <item row="3" column="2">
           <widget class="QDoubleSpinBox" name="currentAngle">
            <property name="enabled">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
            <property name="frame">
             <bool>false</bool>
@@ -105,7 +108,7 @@
          <item row="2" column="2">
           <widget class="QDoubleSpinBox" name="currentY">
            <property name="enabled">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
            <property name="frame">
             <bool>false</bool>
@@ -177,6 +180,9 @@
       </item>
       <item>
        <widget class="QGroupBox" name="groupBox_2">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="title">
          <string>Relative</string>
         </property>
@@ -223,6 +229,9 @@
       </item>
       <item>
        <widget class="QGroupBox" name="groupBox_4">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="title">
          <string>Color</string>
         </property>
