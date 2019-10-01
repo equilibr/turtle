@@ -53,23 +53,23 @@ void Adder(ThreadedBrain &brain)
 	{
 		//Read the number at the previous position
 		brain.log("Reading the saved number");
-		goTo(brain, 0, 1);
+		brain.jump({0,-1});
 		first = readNumber(brain, bits);
-		goTo(brain, 0, -1);
+		brain.jump({0,1});
 		brain.log(QString("Read %1").arg(first));
 	}
 	else
 	{
 		brain.log(QString("Writing %1").arg(first));
-		goTo(brain, 0, 1);
+		brain.jump({0,-1});
 		writeNumber(brain, first, bits);
-		goTo(brain, 0, -1);
+		brain.jump({0,1});
 	}
 
 
 	brain.log(QString("Writing %1").arg(second));
 	writeNumber(brain, second, bits);
-	goTo(brain, 0, -1);
+	brain.jump({0,1});
 
 	brain.log(
 				QString("Expected result is: %1 + %2 = <b>%3</n>")
@@ -95,7 +95,7 @@ void Adder(ThreadedBrain &brain)
 
 	brain.log("Reading the result");
 	const int result = readNumber(brain, bits);
-	goTo(brain, 0, -1);
+	brain.jump({0,1});
 
 	brain.log(QString("Calculated result: <b>%1</b>").arg(result));
 }

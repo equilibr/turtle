@@ -6,12 +6,6 @@
 //goto top-right
 void gotoTR(ThreadedBrain &brain);
 
-//Move relative to current position
-void goTo(ThreadedBrain & brain, int forward, int side, bool keepHeading = true);
-
-//Draw at relative position
-void drawAt(ThreadedBrain & brain, int forward, int side, QColor color);
-
 
 //Test sensor color at the given position
 //---------------------------------------

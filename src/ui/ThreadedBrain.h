@@ -48,6 +48,9 @@ public:
 	//Set the pen state
 	void setPenDown(bool down = true);
 
+	//Jump by a given distance on the current heading
+	void jump(Turtle::Position2D distance = {1,0});
+
 	//Move on the current heading(angle)
 	void move(double distance = 1.0);
 

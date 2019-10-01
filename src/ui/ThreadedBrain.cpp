@@ -128,6 +128,22 @@ void ThreadedBrain::setPenDown(bool down)
 	sendCommand(command);
 }
 
+void ThreadedBrain::jump(Position2D distance)
+{
+	Command command {};
+	command.valid = true;
+	command.destination = Command::Destination::Turtle;
+	command.data.turtle.command = Command::Turtle::Command::Set;
+	command.data.turtle.target = Command::Turtle::Target::Current;
+	command.data.turtle.absolute = false;
+	command.data.turtle.quantized = false;
+	command.data.turtle.setPosition = true;
+
+	command.data.turtle.position = distance;
+
+	sendCommand(command);
+}
+
 void ThreadedBrain::move(double distance)
 {
 	Command command {};

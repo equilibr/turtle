@@ -9,35 +9,7 @@ void gotoTR(ThreadedBrain &brain)
 {
 	brain.setTargetPosition({1000,1000});
 	brain.setTargetAngle(-0.5);
-	goTo(brain, 3,-3);
-}
-
-void goTo(ThreadedBrain & brain, int forward, int side, bool keepHeading)
-{
-	brain.move(forward);
-	if (side > 0)
-	{
-		brain.turnRight();
-		brain.move(side);
-		if (keepHeading)
-			brain.turnLeft();
-	}
-	else
-	{
-		brain.turnLeft();
-		brain.move(-side);
-		if (keepHeading)
-			brain.turnRight();
-	}
-}
-
-void drawAt(ThreadedBrain & brain, int forward, int side, QColor color)
-{
-	goTo(brain, forward, side, true);
-	brain.setPenColor(color);
-	brain.setPenDown(true);
-	brain.setPenDown(false);
-	goTo(brain, -forward, -side, true);
+	brain.jump({3, 3});
 }
 
 bool isSensorSet(ThreadedBrain & brain, Turtle::TilePosition2D offset)
@@ -129,7 +101,7 @@ int readNumber(
 			if (isSensorColor(brain, offset, Qt::green))
 				ok = true;
 
-			brain.move();
+			brain.jump();
 			steps++;
 
 		} while (!ok && (steps < lookahead));
@@ -160,7 +132,7 @@ int readNumber(
 		result |= (isSensorSet(brain, offset) ? 1 : 0) << readBits;
 		readBits++;
 
-		brain.move();
+		brain.jump();
 		steps++;
 
 		//Check for the end marker
@@ -211,7 +183,7 @@ void writeNumber(
 		brain.setPenColor(Qt::green);
 		brain.setPenDown(true);
 		brain.setPenDown(false);
-		brain.move();
+		brain.jump();
 		steps++;
 	}
 
@@ -230,7 +202,7 @@ void writeNumber(
 		brain.setPenDown(true);
 		brain.setPenDown(false);
 
-		brain.move();
+		brain.jump();
 		steps++;
 	}
 
