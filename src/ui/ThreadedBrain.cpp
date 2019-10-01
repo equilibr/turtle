@@ -144,7 +144,7 @@ void ThreadedBrain::jump(Position2D distance)
 	sendCommand(command);
 }
 
-void ThreadedBrain::move(double distance)
+void ThreadedBrain::move(double forward, double sideways)
 {
 	Command command {};
 	command.valid = true;
@@ -155,7 +155,7 @@ void ThreadedBrain::move(double distance)
 	command.data.turtle.quantized = false;
 	command.data.turtle.setPosition = true;
 
-	command.data.turtle.position.x() = distance;
+	command.data.turtle.position = {forward, sideways};
 
 	sendCommand(command);
 }

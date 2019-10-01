@@ -4,42 +4,12 @@ enum class Direction
 {
 	None,
 	Forward,
+	Reverse,
 	Left,
 	Right,
 	LeftDiagonal,
 	RightDiagonal
 };
-
-void logDirection(ThreadedBrain & brain, Direction direction)
-{
-	switch (direction)
-	{
-		case Direction::None:
-			brain.log("None");
-			break;
-
-		case Direction::Forward:
-			brain.log("Forward");
-			break;
-
-		case Direction::Left:
-			brain.log("Left");
-			break;
-
-		case Direction::Right:
-			brain.log("Right");
-			break;
-
-		case Direction::LeftDiagonal:
-			brain.log("Left diagonal");
-			break;
-
-		case Direction::RightDiagonal:
-			brain.log("Right diagonal");
-			break;
-
-	}
-}
 
 Direction findDirection(ThreadedBrain &brain)
 {
@@ -75,27 +45,31 @@ void moveToDirection(ThreadedBrain &brain, Direction direction)
 			brain.move();
 			break;
 
+		case Direction::Reverse:
+			brain.rotate();
+			break;
+
 		case Direction::Left:
-			brain.rotate(0.25);
+			brain.turnLeft();
 			brain.move();
 			break;
 
 		case Direction::Right:
-			brain.rotate(-0.25);
+			brain.turnRight();
 			brain.move();
 			break;
 
 		case Direction::LeftDiagonal:
-			brain.rotate(0.25);
+			brain.turnLeft();
 			brain.move();
-			brain.rotate(-0.25);
+			brain.turnRight();
 			brain.move();
 			break;
 
 		case Direction::RightDiagonal:
-			brain.rotate(-0.25);
+			brain.turnRight();
 			brain.move();
-			brain.rotate(0.25);
+			brain.turnLeft();
 			brain.move();
 			break;
 	}
@@ -104,7 +78,6 @@ void moveToDirection(ThreadedBrain &brain, Direction direction)
 bool advance(ThreadedBrain &brain)
 {
 	Direction direction = findDirection(brain);
-	logDirection(brain, direction);
 	if (direction == Direction::None)
 		return false;
 

@@ -52,7 +52,7 @@ public:
 	void jump(Turtle::Position2D distance = {1,0});
 
 	//Move on the current heading(angle)
-	void move(double distance = 1.0);
+	void move(double forward = 1.0, double sideways = 0);
 
 	//Rotate by some angle
 	void rotate(double angle = 0.5);

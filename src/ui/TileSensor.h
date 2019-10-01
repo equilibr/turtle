@@ -24,7 +24,7 @@ namespace Turtle
 
 		//Return the color at a given position
 		QColor get(int front, int side) const
-		{ return data[index(front, side)]; }
+		{ return data.at(index(front, side)); }
 
 		QColor get(TilePosition2D position) const
 		{ return get(position.x(), position.y()); }
