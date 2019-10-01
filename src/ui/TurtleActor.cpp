@@ -80,21 +80,22 @@ bool TurtleActor::commandGet(Command & data) const
 	data.data.turtle.tileSensor = m_internalState.tileSensor;
 	data.data.turtle.penDown = m_state.pen.down;
 
-	const Location & used =
-			(data.data.turtle.target == Command::Turtle::Target::Current)
-			? m_state.current
-			: m_state.target;
+	if (data.data.turtle.target != Command::Turtle::Target::Tile)
+	{
+		const Location & used =
+				(data.data.turtle.target == Command::Turtle::Target::Current)
+				? m_state.current
+				: m_state.target;
 
-	data.data.turtle.position = used.position;
-	data.data.turtle.tile = used.tile;
-	data.data.turtle.angle = used.angle;
-	data.data.turtle.heading = used.heading;
+		data.data.turtle.position = used.position;
+		data.data.turtle.tile = used.tile;
+		data.data.turtle.angle = used.angle;
+		data.data.turtle.heading = used.heading;
 
-	//Get the current heading
-	if (data.data.turtle.target == Command::Turtle::Target::Tile)
-		data.data.turtle.color = m_world.floor().getColor(data.data.turtle.tile);
-	else
 		data.data.turtle.color = m_state.pen.color;
+	}
+	else
+		data.data.turtle.color = m_world.floor().getColor(data.data.turtle.tile);
 
 	data.valid = true;
 	return true;
@@ -403,10 +404,10 @@ TilePosition2D TurtleActor::positionToGlobal(const TilePosition2D position) cons
 
 	switch (m_state.current.heading)
 	{
-		case Heading::PositiveX: return {front, -side};
-		case Heading::NegativeX: return {-front, side};
-		case Heading::PositiveY: return {side,front};
-		case Heading::NegativeY: return {-side,-front};
+		case Heading::PositiveX: return {front, side};
+		case Heading::NegativeX: return {-front, -side};
+		case Heading::PositiveY: return {-side,front};
+		case Heading::NegativeY: return {side,-front};
 	}
 
 	return {front, side};

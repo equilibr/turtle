@@ -4,15 +4,15 @@
 void AdderAdd(ThreadedBrain & brain, Checker & cResult, Checker & cCarry)
 {
 	//Read the two bits and the carry
-	const int a = isSensorSet(brain, {0,2}) ? 1 : 0;
-	const int b = isSensorSet(brain, {0,1}) ? 1 : 0;
-	const int c = isSensorSet(brain, {0,3}) ? 1 : 0;
+	const int a = isSensorSet(brain, {0,-2}) ? 1 : 0;
+	const int b = isSensorSet(brain, {0,-1}) ? 1 : 0;
+	const int c = isSensorSet(brain, {0,-3}) ? 1 : 0;
 
 	const int r = a + b + c;
 	//Result
 	brain.setDirectionalTile(cResult(r & 1), {0,0});
 	//Carry
-	brain.setDirectionalTile(cCarry(r & 2), {1,3});
+	brain.setDirectionalTile(cCarry(r & 2), {1,-3});
 
 	brain.move();
 }
@@ -78,7 +78,7 @@ void Adder(ThreadedBrain &brain)
 				.arg(first + second));
 
 	//Clear the first carry input
-	brain.setDirectionalTile(Qt::white, {0, 3});
+	brain.setDirectionalTile(Qt::white, {0, -3});
 
 	Checker cResult(Qt::green);
 	Checker cCarry(Qt::blue);

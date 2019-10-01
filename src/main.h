@@ -9,4 +9,6 @@ void Draw(ThreadedBrain &brain);
 void Follow(ThreadedBrain &brain);
 void Adder(ThreadedBrain &brain);
 
+void MazeSolverWall(ThreadedBrain &brain);
+
 #endif // MAINBRAIN_H

@@ -12,9 +12,51 @@ void gotoTR(ThreadedBrain &brain)
 	brain.jump({3, 3});
 }
 
+void moveToDirection(ThreadedBrain &brain, Direction direction)
+{
+	switch (direction)
+	{
+		case Direction::None:
+			//Do nothing
+			break;
+
+		case Direction::Forward:
+			brain.move();
+			break;
+
+		case Direction::Reverse:
+			brain.rotate();
+			break;
+
+		case Direction::Left:
+			brain.turnLeft();
+			brain.move();
+			break;
+
+		case Direction::Right:
+			brain.turnRight();
+			brain.move();
+			break;
+
+		case Direction::LeftDiagonal:
+			brain.turnLeft();
+			brain.move();
+			brain.turnRight();
+			brain.move();
+			break;
+
+		case Direction::RightDiagonal:
+			brain.turnRight();
+			brain.move();
+			brain.turnLeft();
+			brain.move();
+			break;
+	}
+}
+
 bool isSensorSet(ThreadedBrain & brain, Turtle::TilePosition2D offset)
 {
-	return isSet(brain.tileSensor().get(offset));
+	return isSet(brain.getDirectionalTile(offset));
 }
 
 bool isSensorSet(ThreadedBrain & brain, int forward, int side)
@@ -29,7 +71,7 @@ bool isSet(QColor color, double threshold)
 
 bool isSensorColor(ThreadedBrain & brain, Turtle::TilePosition2D offset, QColor test)
 {
-	return isColor(brain.tileSensor().get(offset), test);
+	return isColor(brain.getDirectionalTile(offset), test);
 }
 
 bool isSensorColor(ThreadedBrain & brain, int forward, int side, QColor test)
@@ -43,7 +85,24 @@ bool isColor(QColor color, QColor test, double margin, double threshold)
 		return false;
 
 	//Test for color similarity
-	return fabs((fmod(color.hueF() - test.hueF() + 1.5, 1.0) - 0.5)) <= margin;
+
+	const double cH = color.hueF();
+	const double tH = test.hueF();
+
+	//Make sure both hues are set
+	if ((cH < 0) || (tH < 0))
+	{
+		if ((cH >= 0) || (tH >= 0))
+			//Only one of the color has no hue
+			return false;
+
+		//Both color have no hue, compare by value
+		return fabs(color.valueF() - test.valueF()) <= margin;
+	}
+
+	const double diff = (fmod(cH - tH + 1.5, 1.0) - 0.5);
+	const double distance = fabs(diff);
+	return distance <= margin;
 }
 
 

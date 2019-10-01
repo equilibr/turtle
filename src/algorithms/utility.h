@@ -7,6 +7,20 @@
 void gotoTR(ThreadedBrain &brain);
 
 
+enum class Direction
+{
+	None,
+	Forward,
+	Reverse,
+	Left,
+	Right,
+	LeftDiagonal,
+	RightDiagonal
+};
+
+void moveToDirection(ThreadedBrain &brain, Direction direction);
+
+
 //Test sensor color at the given position
 //---------------------------------------
 

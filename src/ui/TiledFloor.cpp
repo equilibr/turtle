@@ -22,7 +22,7 @@ TiledFloor::TiledFloor(
 
 void TiledFloor::setImage(const QImage & image)
 {
-	m_image = image;
+	m_image = image.convertToFormat(QImage::Format_ARGB32, Qt::ColorOnly);
 
 	//Copy image data to texture
 	for (int s = 0; s < m_image.width(); ++s)

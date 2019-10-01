@@ -58,7 +58,8 @@ private:
 	bool logrobot();
 
 	Ui::MainWindow *ui;
-	QTimer * timer;
+	QTimer * stepTimer;
+	QTimer * frameTimer;
 
 	Turtle::World world;
 	QPointer<TurtleActorController> actor;

@@ -30,11 +30,14 @@ public:
 	//Send a log string to the UI
 	void log(QString text);
 
+	//Return the current position
+	Turtle::Position2D getCurrentPosition();
+
 	//Directly set the target position
-	void setTargetPosition(Turtle::Position2D target);
+	void setTargetPosition(Turtle::Position2D target, bool jump = false);
 
 	//Directly set the target angle
-	void setTargetAngle(double target);
+	void setTargetAngle(double target, bool jump = false);
 
 	//Set the pen color
 	void setPenColor(QColor color = Qt::black);
@@ -49,7 +52,7 @@ public:
 	void setPenDown(bool down = true);
 
 	//Jump by a given distance on the current heading
-	void jump(Turtle::Position2D distance = {1,0});
+	void jump(Turtle::Position2D distance = {1,0}, bool jump = true);
 
 	//Move on the current heading(angle)
 	void move(double forward = 1.0, double sideways = 0);

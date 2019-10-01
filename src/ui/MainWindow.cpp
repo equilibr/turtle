@@ -18,7 +18,8 @@
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow),
-	timer(new QTimer(this)),
+	stepTimer(new QTimer(this)),
+	frameTimer(new QTimer(this)),
 	world{},
 	actor{new TurtleActorController(world.mainActor(), this)},
 	brain{new ThreadedBrainController(actor, this)}
@@ -84,8 +85,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	setupViews(world.scene().root());
 
-	connect(timer, &QTimer::timeout, this, &MainWindow::frame);
-	timer->start(static_cast<int>(1000.0 / frameRate));
+	connect(frameTimer, &QTimer::timeout, this, &MainWindow::frame);
+	frameTimer->start(static_cast<int>(1000.0 / frameRate));
+
+	connect(stepTimer, &QTimer::timeout, [this]{world();});
+	stepTimer->start(10);
 }
 
 MainWindow::~MainWindow()
@@ -95,8 +99,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::frame()
 {
-	world();
-
 	ui->followView->update();
 	ui->image->update();
 	ui->tileSensor->update();
@@ -215,6 +217,7 @@ void MainWindow::on_actionLoad_triggered()
 		return;
 
 	world.setImage(QImage{file.fileName()});
+	ui->image->setImage(&world.floor().image());
 }
 
 void MainWindow::on_actionSave_as_triggered()
@@ -299,7 +302,7 @@ void MainWindow::on_actionLinear_speed_triggered()
 					"Linear speed",
 					"The speed, in units per second",
 					actor->linearSpeed(),
-					0, 100, 3));
+					0, 1e6, 3));
 }
 
 void MainWindow::on_actionRotation_speed_triggered()

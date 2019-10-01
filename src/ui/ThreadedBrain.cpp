@@ -68,13 +68,26 @@ void ThreadedBrain::log(QString text)
 	sendCommand(command);
 }
 
-void ThreadedBrain::setTargetPosition(Turtle::Position2D target)
+Position2D ThreadedBrain::getCurrentPosition()
+{
+	Command command {};
+	command.valid = true;
+	command.destination = Command::Destination::Turtle;
+	command.data.turtle.command = Command::Turtle::Command::Get;
+	command.data.turtle.target = Command::Turtle::Target::Current;
+
+	return sendCommand(command).data.turtle.position;
+}
+
+void ThreadedBrain::setTargetPosition(Turtle::Position2D target, bool jump)
 {
 	Command command {};
 	command.valid = true;
 	command.destination = Command::Destination::Turtle;
 	command.data.turtle.command = Command::Turtle::Command::Set;
-	command.data.turtle.target = Command::Turtle::Target::Target;
+	command.data.turtle.target = jump
+			? Command::Turtle::Target::Current
+			: Command::Turtle::Target::Target;
 	command.data.turtle.absolute = true;
 	command.data.turtle.quantized = false;
 	command.data.turtle.setPosition = true;
@@ -84,13 +97,15 @@ void ThreadedBrain::setTargetPosition(Turtle::Position2D target)
 	sendCommand(command);
 }
 
-void ThreadedBrain::setTargetAngle(double target)
+void ThreadedBrain::setTargetAngle(double target, bool jump)
 {
 	Command command {};
 	command.valid = true;
 	command.destination = Command::Destination::Turtle;
 	command.data.turtle.command = Command::Turtle::Command::Set;
-	command.data.turtle.target = Command::Turtle::Target::Target;
+	command.data.turtle.target = jump
+			? Command::Turtle::Target::Current
+			: Command::Turtle::Target::Target;
 	command.data.turtle.absolute = true;
 	command.data.turtle.quantized = false;
 	command.data.turtle.setHeading = true;
@@ -128,13 +143,15 @@ void ThreadedBrain::setPenDown(bool down)
 	sendCommand(command);
 }
 
-void ThreadedBrain::jump(Position2D distance)
+void ThreadedBrain::jump(Position2D distance, bool jump)
 {
 	Command command {};
 	command.valid = true;
 	command.destination = Command::Destination::Turtle;
 	command.data.turtle.command = Command::Turtle::Command::Set;
-	command.data.turtle.target = Command::Turtle::Target::Current;
+	command.data.turtle.target = jump
+			? Command::Turtle::Target::Current
+			: Command::Turtle::Target::Target;
 	command.data.turtle.absolute = false;
 	command.data.turtle.quantized = false;
 	command.data.turtle.setPosition = true;

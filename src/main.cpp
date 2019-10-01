@@ -15,6 +15,7 @@ void Main(ThreadedBrain & brain)
 		{Draw, "Draw"},
 		{Follow, "Follow"},
 		{Adder, "Adder"},
+		{MazeSolverWall, "Maze solver: Wall"},
 	};
 
 	QString algorithmList;

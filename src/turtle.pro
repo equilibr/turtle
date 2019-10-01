@@ -30,6 +30,7 @@ SOURCES += \
 		algorithms/adder.cpp \
 		algorithms/draw.cpp \
 		algorithms/follow.cpp \
+		algorithms/mazeSolverWall.cpp \
 		algorithms/utility.cpp \
 		ui/Actor.cpp \
 		ui/Command.cpp \
